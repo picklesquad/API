@@ -1,5 +1,7 @@
 package com.pickle.Domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 
 /**

@@ -17,4 +17,9 @@ public class UserService {
         UserEntity user = userRepository.findByEmail(email);
         return user;
     }
+
+    public UserEntity getUserById(int id){
+        UserEntity user = userRepository.findById(id);
+        return user;
+    }
 }
