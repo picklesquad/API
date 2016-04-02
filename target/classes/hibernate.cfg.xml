@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.url">jdbc:mysql://130.211.255.55:3306/pickle</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <mapping class="com.pickle.Domain.BanksampahEntity"/>
+        <mapping class="com.pickle.Domain.LanggananEntity"/>
+        <mapping class="com.pickle.Domain.TransaksiEntity"/>
+        <mapping class="com.pickle.Domain.UserEntity"/>
+        <mapping class="com.pickle.Domain.WithdrawEntity"/>
+        <!-- DB schema will be updated if needed -->
+        <!-- <property name="hbm2ddl.auto">update</property> -->
+    </session-factory>
+</hibernate-configuration>
