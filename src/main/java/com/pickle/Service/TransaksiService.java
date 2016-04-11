@@ -12,23 +12,43 @@ public class TransaksiService {
     @Autowired
     private TransaksiRepository transaksiRepository;
 
-    public Double getTotalSampahPlastik(int idBank){
-        Double hasil = transaksiRepository.getTotalSampahPlastik(idBank);
+    public Double getTotalSampahPlastikBank(int idBank){
+        Double hasil = transaksiRepository.getTotalSampahPlastikBank(idBank);
         return hasil;
     }
 
-    public int getTotalSampahBotol(int idBank){
-        int hasil = transaksiRepository.getTotalSampahBotol(idBank);
+    public int getTotalSampahBotolBank(int idBank){
+        int hasil = transaksiRepository.getTotalSampahBotolBank(idBank);
         return hasil;
     }
 
-    public Double getTotalSampahBesi(int idBank){
-        Double hasil = transaksiRepository.getTotalSampahBesi(idBank);
+    public Double getTotalSampahBesiBank(int idBank){
+        Double hasil = transaksiRepository.getTotalSampahBesiBank(idBank);
         return hasil;
     }
 
-    public Double getTotalSampahKertas(int idBank){
-        Double hasil = transaksiRepository.getTotalSampahKertas(idBank);
+    public Double getTotalSampahKertasBank(int idBank){
+        Double hasil = transaksiRepository.getTotalSampahKertasBank(idBank);
+        return hasil;
+    }
+
+    public Double getTotalSampahPlastikUser(int idUser){
+        Double hasil = transaksiRepository.getTotalSampahPlastikUser(idUser);
+        return hasil;
+    }
+
+    public int getTotalSampahBotolUser(int idUser){
+        int hasil = transaksiRepository.getTotalSampahBotolUser(idUser);
+        return hasil;
+    }
+
+    public Double getTotalSampahBesiUser(int idUser){
+        Double hasil = transaksiRepository.getTotalSampahBesiUser(idUser);
+        return hasil;
+    }
+
+    public Double getTotalSampahKertasUser(int idUser){
+        Double hasil = transaksiRepository.getTotalSampahKertasUser(idUser);
         return hasil;
     }
 
