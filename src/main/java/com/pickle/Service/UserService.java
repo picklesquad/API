@@ -22,4 +22,8 @@ public class UserService {
         UserEntity user = userRepository.findById(id);
         return user;
     }
+
+    public int getIsComplete(String email) {
+        return userRepository.getIsComplete(email);
+    }
 }

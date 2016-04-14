@@ -6,7 +6,7 @@ import javax.persistence.*;
  * Created by andrikurniawan.id@gmail.com on 3/23/2016.
  */
 @Entity
-@Table(name = "withdraw", schema = "pickle", catalog = "")
+@Table(name = "withdraw", schema = "pickle_dev", catalog = "")
 public class WithdrawEntity {
     private int id;
     private int idUser;

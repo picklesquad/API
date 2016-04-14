@@ -14,19 +14,36 @@ public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Int
 
     @Query(value = "SELECT sum(sampahplastik) from transaksi where idbank = :idbank",
             nativeQuery = true)
-        public Double getTotalSampahPlastik(@Param("idbank") int idbank);
+        public Double getTotalSampahPlastikBank(@Param("idbank") int idbank);
 
     @Query(value = "SELECT sum(sampahbotol) from transaksi where idbank = :idbank",
             nativeQuery = true)
-    public int getTotalSampahBotol(@Param("idbank") int idbank);
+    public int getTotalSampahBotolBank(@Param("idbank") int idbank);
 
     @Query(value = "SELECT sum(sampahbesi) from transaksi where idbank = :idbank",
             nativeQuery = true)
-    public Double getTotalSampahBesi(@Param("idbank") int idbank);
+    public Double getTotalSampahBesiBank(@Param("idbank") int idbank);
 
     @Query(value = "SELECT sum(sampahkertas) from transaksi where idbank = :idbank",
             nativeQuery = true)
-    public Double getTotalSampahKertas(@Param("idbank") int idbank);
+    public Double getTotalSampahKertasBank(@Param("idbank") int idbank);
+
+    @Query(value = "SELECT sum(sampahplastik) from transaksi where iduser = :iduser",
+            nativeQuery = true)
+    public Double getTotalSampahPlastikUser(@Param("iduser") int iduser);
+
+    @Query(value = "SELECT sum(sampahbotol) from transaksi where iduser = :iduser",
+            nativeQuery = true)
+    public int getTotalSampahBotolUser(@Param("iduser") int iduser);
+
+    @Query(value = "SELECT sum(sampahbesi) from transaksi where iduser = :iduser",
+            nativeQuery = true)
+    public Double getTotalSampahBesiUser(@Param("iduser") int iduser);
+
+    @Query(value = "SELECT sum(sampahkertas) from transaksi where iduser = :iduser",
+            nativeQuery = true)
+    public Double getTotalSampahKertasUser(@Param("iduser") int iduser);
+
 
     @Query(value = "SELECT avg(rating) from transaksi where idbank = :idbank",
             nativeQuery = true)

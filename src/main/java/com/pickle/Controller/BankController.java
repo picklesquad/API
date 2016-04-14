@@ -43,7 +43,7 @@ public class BankController {
             model.addAttribute("nama",bankResult.getNama());
             model.addAttribute("rating",rating);
             model.addAttribute("totalNasabah", nasabah);
-            sampah(bankResult.getId(), model);
+            sampahBank(bankResult.getId(), model);
             return new Wrapper(200,"Login", model);
         }else{
             return new Wrapper(200,"Gagal", null);
@@ -59,20 +59,36 @@ public class BankController {
         model.addAttribute("phoneNumber", user.getPhoneNumber());
         model.addAttribute("alamat", user.getAlamat());
         model.addAttribute("saldo", user.getSaldo());
-        sampah(id,model);
+        sampahUser(id,model);
         return new Wrapper(200,"Success",model);
     }
 
     /**
      * Fungsi ini untuk menambahkan data tentang sampah dari user/ bank ke dalam model
-     * @param id
+     * @param idBank id bank nya
      * @param model
      */
-    public void sampah(int id, ModelMap model){
-        Double sampahPlastik = transaksiService.getTotalSampahPlastik(id);
-        int sampahBotol = transaksiService.getTotalSampahBotol(id);
-        Double sampahBesi = transaksiService.getTotalSampahBesi(id);
-        Double sampahKertas = transaksiService.getTotalSampahKertas(id);
+    public void sampahBank(int idBank, ModelMap model){
+        Double sampahPlastik = transaksiService.getTotalSampahPlastikBank(idBank);
+        int sampahBotol = transaksiService.getTotalSampahBotolBank(idBank);
+        Double sampahBesi = transaksiService.getTotalSampahBesiBank(idBank);
+        Double sampahKertas = transaksiService.getTotalSampahKertasBank(idBank);
+        model.addAttribute("sampahPlastik",sampahPlastik);
+        model.addAttribute("sampahBotol",sampahBotol);
+        model.addAttribute("sampahBesi",sampahBesi);
+        model.addAttribute("sampahKertas",sampahKertas);
+    }
+
+    /**
+     * Fungsi ini untuk menambahkan data tentang sampah dari user/ bank ke dalam model
+     * @param idUser id user nya
+     * @param model
+     */
+    public void sampahUser(int idUser, ModelMap model){
+        Double sampahPlastik = transaksiService.getTotalSampahPlastikUser(idUser);
+        int sampahBotol = transaksiService.getTotalSampahBotolUser(idUser);
+        Double sampahBesi = transaksiService.getTotalSampahBesiUser(idUser);
+        Double sampahKertas = transaksiService.getTotalSampahKertasUser(idUser);
         model.addAttribute("sampahPlastik",sampahPlastik);
         model.addAttribute("sampahBotol",sampahBotol);
         model.addAttribute("sampahBesi",sampahBesi);

@@ -6,7 +6,7 @@ import javax.persistence.*;
  * Created by andrikurniawan.id@gmail.com on 3/23/2016.
  */
 @Entity
-@Table(name = "langganan", schema = "pickle", catalog = "")
+@Table(name = "langganan", schema = "pickle_dev", catalog = "")
 @IdClass(LanggananEntityPK.class)
 public class LanggananEntity {
     private int idbank;
