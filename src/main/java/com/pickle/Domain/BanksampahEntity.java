@@ -3,6 +3,8 @@ package com.pickle.Domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by andrikurniawan.id@gmail.com on 3/23/2016.
@@ -19,6 +21,16 @@ public class BanksampahEntity {
     private String locationName;
     private String locationDesc;
     private String password;
+    private Set<LanggananEntity> langgananEntity;
+
+    public BanksampahEntity(){
+
+    }
+
+    public BanksampahEntity(String nama) {
+        this.nama = nama;
+        langgananEntity = new HashSet<>();
+    }
 
     @Id
     @Column(name = "id")
@@ -109,6 +121,15 @@ public class BanksampahEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @OneToMany(mappedBy = "bankSampahEntity", cascade = CascadeType.ALL)
+    public Set<LanggananEntity> getLanggananEntity(){
+        return langgananEntity;
+    }
+
+    public void setLanggananEntity(Set<LanggananEntity> langgananEntity){
+        this.langgananEntity = langgananEntity;
     }
 
     @Override

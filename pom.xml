@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.pickle</groupId>
-	<artifactId>demo</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>pickle</artifactId>
+	<version>0.1</version>
 	<packaging>war</packaging>
 
-	<name>demo</name>
+	<name>pickle</name>
 	<description>Rest API for pickle apps</description>
 
 	<parent>

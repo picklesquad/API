@@ -6,32 +6,33 @@ import javax.persistence.*;
  * Created by andrikurniawan.id@gmail.com on 3/23/2016.
  */
 @Entity
-@Table(name = "langganan", schema = "pickle_dev", catalog = "")
-@IdClass(LanggananEntityPK.class)
+@Table(name = "langganan", schema = "pickle_dev")
 public class LanggananEntity {
-    private int idbank;
-    private int iduser;
+    private BanksampahEntity banksampahEntity;
+    private UserEntity userEntity;
     private long langgananSejak;
     private long transaksiPertama;
 
     @Id
-    @Column(name = "idbank")
-    public int getIdbank() {
-        return idbank;
+    @ManyToOne
+    @JoinColumn(name = "idbank")
+    public BanksampahEntity getBank() {
+        return banksampahEntity;
     }
 
-    public void setIdbank(int idbank) {
-        this.idbank = idbank;
+    public void setBank(BanksampahEntity banksampahEntity) {
+        this.banksampahEntity = banksampahEntity;
     }
 
     @Id
-    @Column(name = "iduser")
-    public int getIduser() {
-        return iduser;
+    @ManyToOne
+    @JoinColumn(name = "iduser")
+    public UserEntity getUser() {
+        return userEntity;
     }
 
-    public void setIduser(int iduser) {
-        this.iduser = iduser;
+    public void setUser(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
     @Basic
@@ -54,27 +55,4 @@ public class LanggananEntity {
         this.transaksiPertama = transaksiPertama;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        LanggananEntity that = (LanggananEntity) o;
-
-        if (idbank != that.idbank) return false;
-        if (iduser != that.iduser) return false;
-        if (langgananSejak != that.langgananSejak) return false;
-        if (transaksiPertama != that.transaksiPertama) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = idbank;
-        result = 31 * result + iduser;
-        result = 31 * result + (int) (langgananSejak ^ (langgananSejak >>> 32));
-        result = 31 * result + (int) (transaksiPertama ^ (transaksiPertama >>> 32));
-        return result;
-    }
 }

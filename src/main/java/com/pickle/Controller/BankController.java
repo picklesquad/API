@@ -53,15 +53,27 @@ public class BankController {
     @RequestMapping(path = "/nasabah/{id}", method = RequestMethod.GET)
     public Wrapper getUserById(@PathVariable("id")int id){
         UserEntity user = userService.getUserById(id);
-        ModelMap model = new ModelMap();
-        model.addAttribute("id", user.getId());
-        model.addAttribute("nama", user.getNama());
-        model.addAttribute("phoneNumber", user.getPhoneNumber());
-        model.addAttribute("alamat", user.getAlamat());
-        model.addAttribute("saldo", user.getSaldo());
-        sampahUser(id,model);
-        return new Wrapper(200,"Success",model);
+        if(user != null){
+            ModelMap model = new ModelMap();
+            model.addAttribute("id", user.getId());
+            model.addAttribute("nama", user.getNama());
+            model.addAttribute("email", user.getEmail());
+            model.addAttribute("phoneNumber", user.getPhoneNumber());
+            model.addAttribute("alamat", user.getAlamat());
+            model.addAttribute("saldo", user.getSaldo());
+            sampahUser(id,model);
+            return new Wrapper(200,"Success",model);
+        }else{
+            return new Wrapper(404,"Resources Not Found, Try another id's", null);
+        }
+
     }
+
+
+    @RequestMapping(path = "/nasabah", method = RequestMethod.GET)
+
+
+
 
     /**
      * Fungsi ini untuk menambahkan data tentang sampah dari user/ bank ke dalam model

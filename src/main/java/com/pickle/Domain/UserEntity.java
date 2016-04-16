@@ -1,12 +1,13 @@
 package com.pickle.Domain;
 
 import javax.persistence.*;
+import java.util.Set;
 
 /**
  * Created by andrikurniawan.id@gmail.com on 3/23/2016.
  */
 @Entity
-@Table(name = "user", schema = "pickle_dev", catalog = "")
+@Table(name = "user", schema = "pickle_dev")
 public class UserEntity {
     private int id;
     private String nama;
@@ -20,6 +21,17 @@ public class UserEntity {
     private String fbToken;
     private int isComplete;
     private long memberSince;
+    private Set<LanggananEntity> langgananEntity;
+
+
+    public UserEntity(){
+
+    }
+
+    public UserEntity(String nama, String photo){
+        this.nama = nama;
+        this.photo = photo;
+    }
 
     @Id
     @Column(name = "id")
@@ -138,6 +150,15 @@ public class UserEntity {
     }
 
     public void setMemberSince(long memberSince) { this.memberSince = memberSince; }
+
+    @OneToMany(mappedBy = "userEntity")
+    public Set<LanggananEntity> getLanggananEntity() {
+        return langgananEntity;
+    }
+
+    public void setLanggananEntity(Set<LanggananEntity> langgananEntity){
+        this.langgananEntity = langgananEntity;
+    }
 
     @Override
     public boolean equals(Object o) {
