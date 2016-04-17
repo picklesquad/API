@@ -1,8 +1,10 @@
 package com.pickle.Service;
 
+import com.pickle.Domain.TransaksiEntity;
 import com.pickle.Repository.TransaksiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 /**
  * Created by andrikurniawan.id@gmail.com on 3/28/2016.
@@ -11,6 +13,14 @@ import org.springframework.stereotype.Service;
 public class TransaksiService {
     @Autowired
     private TransaksiRepository transaksiRepository;
+
+    public TransaksiEntity getTransaksiById(int id) {
+        return transaksiRepository.findById(id);
+    }
+
+    public List<TransaksiEntity> getTransaksiByIdUser(int id) {
+        return transaksiRepository.findByIdUser(id);
+    }
 
     public Double getTotalSampahPlastikBank(int idBank){
         Double hasil = transaksiRepository.getTotalSampahPlastikBank(idBank);

@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BankRepository extends CrudRepository<BanksampahEntity, Integer> {
     public BanksampahEntity findByPhoneNumberAndPassword(String phoneNumber, String password);
+    public BanksampahEntity findById(int id);
 }

@@ -103,21 +103,21 @@ public class UserEntity {
 
     @Basic
     @Column(name = "apitoken")
-    public String getAPIToken() {
+    public String getApiToken() {
         return apiToken;
     }
 
-    public void setAPIToken(String apiToken) {
+    public void setApiToken(String apiToken) {
         this.apiToken = apiToken;
     }
 
     @Basic
     @Column(name = "fbtoken")
-    public String getFacebookToken() {
+    public String getFbToken() {
         return fbToken;
     }
 
-    public void setFacebookToken(String fbToken) {
+    public void setFbToken(String fbToken) {
         this.fbToken = fbToken;
     }
 

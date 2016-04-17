@@ -5,12 +5,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
 /**
  * Created by andrikurniawan.id@gmail.com on 3/28/2016.
  */
 @Repository
 public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Integer> {
+
+    public TransaksiEntity findById(int id);
+    public List<TransaksiEntity> findByIdUser(int idUser);
 
     @Query(value = "SELECT sum(sampahplastik) from transaksi where idbank = :idbank",
             nativeQuery = true)
@@ -43,7 +47,6 @@ public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Int
     @Query(value = "SELECT sum(sampahkertas) from transaksi where iduser = :iduser",
             nativeQuery = true)
     public Double getTotalSampahKertasUser(@Param("iduser") int iduser);
-
 
     @Query(value = "SELECT avg(rating) from transaksi where idbank = :idbank",
             nativeQuery = true)

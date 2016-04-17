@@ -17,4 +17,8 @@ public class BankService {
         BanksampahEntity bank = bankRepository.findByPhoneNumberAndPassword(phoneNumber, password);
         return bank;
     }
+
+    public BanksampahEntity findById(int id) {
+        return bankRepository.findById(id);
+    }
 }

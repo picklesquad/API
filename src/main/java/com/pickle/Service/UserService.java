@@ -23,6 +23,14 @@ public class UserService {
         return user;
     }
 
+    public UserEntity getUserByApiToken(String token) {
+        return userRepository.findByApiToken(token);
+    }
+
+    public UserEntity getUserByFbToken(String token) {
+        return userRepository.findByFbToken(token);
+    }
+
     public int getIsComplete(String email) {
         return userRepository.getIsComplete(email);
     }

@@ -14,6 +14,8 @@ public interface UserRepository extends CrudRepository<UserEntity, Integer>{
 
     public UserEntity findByEmail(String email);
     public UserEntity findById(int id);
+    public UserEntity findByApiToken(String apiToken);
+    public UserEntity findByFbToken(String fbToken);
 
     @Query(value = "SELECT iscomplete from user where email = :email",
             nativeQuery = true)
