@@ -66,4 +66,10 @@ public class TransaksiService {
         Double hasil = transaksiRepository.getTotalRating(idBank);
         return hasil;
     }
+
+    public int getSaldoByIdBank(int idBank, int idUser){
+        Integer saldo = transaksiRepository.getSaldoByIdBank(idBank, idUser);
+        if(saldo == null) saldo = 0;
+        return saldo;
+    }
 }

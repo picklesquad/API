@@ -1,9 +1,6 @@
 package com.pickle.Controller;
 
-import com.pickle.Domain.BanksampahEntity;
-import com.pickle.Domain.TransaksiEntity;
-import com.pickle.Domain.UserEntity;
-import com.pickle.Domain.Wrapper;
+import com.pickle.Domain.*;
 import com.pickle.Service.BankService;
 import com.pickle.Service.LanggananService;
 import com.pickle.Service.TransaksiService;
@@ -12,6 +9,9 @@ import org.apache.tomcat.jni.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by andrikurniawan.id@gmail.com on 3/17/2016.
@@ -61,6 +61,30 @@ public class BankController {
         model.addAttribute("saldo", user.getSaldo());
         sampahUser(id,model);
         return new Wrapper(200,"Success",model);
+    }
+
+
+    @RequestMapping(path = "/nasabah/getAll", method = RequestMethod.GET)
+    public Wrapper getListAllNasabah(@RequestHeader(value = "idBank")int idbank){
+        List<LanggananEntity> langganan = langgananService.getLanggananByIdbank(idbank);
+        if(langganan == null){
+            return new Wrapper(404, "Data Not Found", null);
+        }
+        List<ModelMap> result = new LinkedList<ModelMap>();
+
+        for(LanggananEntity n: langganan){
+            ModelMap model = new ModelMap();
+
+            UserEntity user = userService.getUserById(n.getIduser());
+            model.addAttribute("id", user.getId());
+            model.addAttribute("nama", user.getNama());
+            model.addAttribute("photo", user.getPhoto());
+            int saldo = transaksiService.getSaldoByIdBank(idbank,user.getId());
+            model.addAttribute("saldo", saldo);
+            result.add(model);
+        }
+
+        return new Wrapper(200, "Success", result);
     }
 
     /**
