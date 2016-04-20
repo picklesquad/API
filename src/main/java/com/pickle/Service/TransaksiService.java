@@ -22,6 +22,10 @@ public class TransaksiService {
         return transaksiRepository.findByIdUser(id);
     }
 
+    public List<TransaksiEntity> getTransaksiByIdBank(int idBank) {
+        return transaksiRepository.findByIdBank(idBank);
+    }
+
     public Double getTotalSampahPlastikBank(int idBank){
         Double hasil = transaksiRepository.getTotalSampahPlastikBank(idBank);
         return hasil;
@@ -72,4 +76,5 @@ public class TransaksiService {
         if(saldo == null) saldo = 0;
         return saldo;
     }
+
 }

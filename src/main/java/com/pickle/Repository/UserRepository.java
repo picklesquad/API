@@ -20,4 +20,5 @@ public interface UserRepository extends CrudRepository<UserEntity, Integer>{
     @Query(value = "SELECT iscomplete from user where email = :email",
             nativeQuery = true)
     public int getIsComplete(@Param("email") String email);
+
 }

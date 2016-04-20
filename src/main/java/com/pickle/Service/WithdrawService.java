@@ -23,4 +23,8 @@ public class WithdrawService {
     public List<WithdrawEntity> getWithdrawByIdUser(int id) {
         return withdrawRepository.findByIdUser(id);
     }
+
+    public List<WithdrawEntity> getWithdrawByIdBank(int idBank){
+        return withdrawRepository.findByIdBank(idBank);
+    }
 }

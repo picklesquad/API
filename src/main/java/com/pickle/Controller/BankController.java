@@ -1,15 +1,14 @@
 package com.pickle.Controller;
 
 import com.pickle.Domain.*;
-import com.pickle.Service.BankService;
-import com.pickle.Service.LanggananService;
-import com.pickle.Service.TransaksiService;
-import com.pickle.Service.UserService;
+import com.pickle.Service.*;
 import org.apache.tomcat.jni.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,6 +30,9 @@ public class BankController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private WithdrawService withdrawService;
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public Wrapper login(@RequestParam("phoneNumber")String phoneNumber, @RequestParam("password")String password){
@@ -63,7 +65,6 @@ public class BankController {
         return new Wrapper(200,"Success",model);
     }
 
-
     @RequestMapping(path = "/nasabah/getAll", method = RequestMethod.GET)
     public Wrapper getListAllNasabah(@RequestHeader(value = "idBank")int idbank){
         List<LanggananEntity> langganan = langgananService.getLanggananByIdbank(idbank);
@@ -86,6 +87,58 @@ public class BankController {
 
         return new Wrapper(200, "Success", result);
     }
+
+    @RequestMapping(path = "/transaction", method = RequestMethod.GET)
+    public Wrapper getListAllTransaction(@RequestHeader(value = "idBank")int idBank){
+        List<TransaksiEntity> transaction = transaksiService.getTransaksiByIdBank(idBank);
+        if (transaction == null){
+            return new Wrapper(404, "Data Not Found", null);
+        }
+        List<ModelMap> result = new LinkedList<ModelMap>();
+        for(TransaksiEntity t: transaction){
+            ModelMap model = new ModelMap();
+            model.addAttribute("id", t.getId());
+            UserEntity user = userService.getUserById(t.getIdUser());
+            model.addAttribute("nama", user.getNama());
+            model.addAttribute("harga", t.getHarga());
+            model.addAttribute("waktu", t.getWaktu());
+            result.add(model);
+        }
+
+        return new Wrapper(200, "Success", result);
+
+    }
+
+    @RequestMapping(path = "/transaction/{id}", method = RequestMethod.GET)
+    public Wrapper getDetailTransaction(@PathVariable("id")int id){
+        TransaksiEntity transaction = transaksiService.getTransaksiById(id);
+        ModelMap model = new ModelMap();
+        model.addAttribute("");
+
+    }
+
+    @RequestMapping(path = "/withdraw", method = RequestMethod.GET)
+    public Wrapper getListAllWithdraw(@RequestHeader(value = "idBank")int idBank){
+        List<WithdrawEntity> withdrawals = withdrawService.getWithdrawByIdBank(idBank);
+        if(withdrawals == null){
+            return new Wrapper(404, "Data Not Found", null);
+        }
+        List<ModelMap> result = new LinkedList<ModelMap>();
+        for(WithdrawEntity w: withdrawals ){
+            ModelMap model = new ModelMap();
+            model.addAttribute("id", w.getId());
+            UserEntity user = userService.getUserById(w.getIdUser());
+            model.addAttribute("nama", user.getNama());
+            model.addAttribute("waktu", w.getWaktu());
+            model.addAttribute("harga", w.getNominal());
+            result.add(model);
+        }
+
+        return new Wrapper(200, "Success", result);
+    }
+
+
+
 
     /**
      * Fungsi ini untuk menambahkan data tentang sampah dari user/ bank ke dalam model

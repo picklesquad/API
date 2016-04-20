@@ -14,7 +14,10 @@ import java.util.List;
 public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Integer> {
 
     public TransaksiEntity findById(int id);
+
     public List<TransaksiEntity> findByIdUser(int idUser);
+
+    public List<TransaksiEntity> findByIdBank(int idBank);
 
     @Query(value = "SELECT sum(sampahplastik) from transaksi where idbank = :idbank",
             nativeQuery = true)
@@ -55,6 +58,4 @@ public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Int
     @Query(value = "SELECT sum(harga) from transaksi where idbank = :idbank and iduser = :iduser",
             nativeQuery = true)
     public Integer getSaldoByIdBank(@Param("idbank") int idbank, @Param("iduser") int iduser);
-
-
 }
