@@ -109,13 +109,13 @@ public class BankController {
 
     }
 
-    @RequestMapping(path = "/transaction/{id}", method = RequestMethod.GET)
-    public Wrapper getDetailTransaction(@PathVariable("id")int id){
-        TransaksiEntity transaction = transaksiService.getTransaksiById(id);
-        ModelMap model = new ModelMap();
-        model.addAttribute("");
-
-    }
+//    @RequestMapping(path = "/transaction/{id}", method = RequestMethod.GET)
+//    public Wrapper getDetailTransaction(@PathVariable("id")int id){
+//        TransaksiEntity transaction = transaksiService.getTransaksiById(id);
+//        ModelMap model = new ModelMap();
+//        model.addAttribute("");
+//
+//    }
 
     @RequestMapping(path = "/withdraw", method = RequestMethod.GET)
     public Wrapper getListAllWithdraw(@RequestHeader(value = "idBank")int idBank){
@@ -135,6 +135,18 @@ public class BankController {
         }
 
         return new Wrapper(200, "Success", result);
+    }
+
+    @RequestMapping(path = "/withdraw/{id}", method = RequestMethod.GET)
+    public Wrapper getListDetailWithdraw(@PathVariable(value = "id")int id){
+        WithdrawEntity withdrawals = withdrawService.getWithdrawById(id);
+        UserEntity user = userService.getUserById(withdrawals.getIdUser());
+        ModelMap model = new ModelMap();
+        model.addAttribute("nama", user.getNama());
+        model.addAttribute("saldo", withdrawals.getNominal());
+        model.addAttribute("waktu", withdrawals.getWaktu());
+        model.addAttribute("status", withdrawals.getStatus());
+        return new Wrapper(200, "Success", model);
     }
 
 
