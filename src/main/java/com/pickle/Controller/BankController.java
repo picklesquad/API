@@ -125,13 +125,15 @@ public class BankController {
         }
         List<ModelMap> result = new LinkedList<ModelMap>();
         for(WithdrawEntity w: withdrawals ){
-            ModelMap model = new ModelMap();
-            model.addAttribute("id", w.getId());
-            UserEntity user = userService.getUserById(w.getIdUser());
-            model.addAttribute("nama", user.getNama());
-            model.addAttribute("waktu", w.getWaktu());
-            model.addAttribute("harga", w.getNominal());
-            result.add(model);
+            if(w.getStatus() == 2){
+                ModelMap model = new ModelMap();
+                model.addAttribute("id", w.getId());
+                UserEntity user = userService.getUserById(w.getIdUser());
+                model.addAttribute("nama", user.getNama());
+                model.addAttribute("waktu", w.getWaktu());
+                model.addAttribute("harga", w.getNominal());
+                result.add(model);
+            }
         }
 
         return new Wrapper(200, "Success", result);
@@ -140,7 +142,9 @@ public class BankController {
     @RequestMapping(path = "/withdraw/{id}", method = RequestMethod.GET)
     public Wrapper getListDetailWithdraw(@PathVariable(value = "id")int id){
         WithdrawEntity withdrawals = withdrawService.getWithdrawById(id);
+        if(withdrawals == null) return new Wrapper(200, "Data Not Found", null);
         UserEntity user = userService.getUserById(withdrawals.getIdUser());
+        if(user == null) return new Wrapper(200, "Data Not Found", null);
         ModelMap model = new ModelMap();
         model.addAttribute("nama", user.getNama());
         model.addAttribute("saldo", withdrawals.getNominal());
@@ -149,7 +153,30 @@ public class BankController {
         return new Wrapper(200, "Success", model);
     }
 
+//    @RequestMapping(path = "/transaction/addNew", method = RequestMethod.POST)
+//    public Wrapper newTransaction(@RequestParam(""))
 
+    @RequestMapping(path = "/notification", method = RequestMethod.GET)
+    public Wrapper getListNotification(@RequestHeader(value = "idBank")int idBank){
+
+        List<WithdrawEntity> withdraw = withdrawService.getWithdrawByIdBank(idBank);
+        if(withdraw == null) return new Wrapper(200, "Data Not Found", null);
+
+        List<ModelMap> result = new LinkedList<ModelMap>();
+        for(WithdrawEntity w: withdraw ){
+            if(w.getStatus() != 2) {
+                ModelMap model = new ModelMap();
+                model.addAttribute("id", w.getId());
+                UserEntity user = userService.getUserById(w.getIdUser());
+                model.addAttribute("nama", user.getNama());
+                model.addAttribute("waktu", w.getWaktu());
+                model.addAttribute("harga", w.getNominal());
+                result.add(model);
+            }
+        }
+
+        return new Wrapper(200, "Success", result);
+    }
 
 
     /**
