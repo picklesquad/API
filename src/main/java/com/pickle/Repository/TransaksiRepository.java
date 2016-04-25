@@ -21,11 +21,11 @@ public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Int
 
     @Query(value = "SELECT sum(sampahplastik) from transaksi where idbank = :idbank",
             nativeQuery = true)
-        public Double getTotalSampahPlastikBank(@Param("idbank") int idbank);
+    public Double getTotalSampahPlastikBank(@Param("idbank") int idbank);
 
     @Query(value = "SELECT sum(sampahbotol) from transaksi where idbank = :idbank",
             nativeQuery = true)
-    public int getTotalSampahBotolBank(@Param("idbank") int idbank);
+    public Integer getTotalSampahBotolBank(@Param("idbank") int idbank);
 
     @Query(value = "SELECT sum(sampahbesi) from transaksi where idbank = :idbank",
             nativeQuery = true)
@@ -41,7 +41,7 @@ public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Int
 
     @Query(value = "SELECT sum(sampahbotol) from transaksi where iduser = :iduser",
             nativeQuery = true)
-    public int getTotalSampahBotolUser(@Param("iduser") int iduser);
+    public Integer getTotalSampahBotolUser(@Param("iduser") int iduser);
 
     @Query(value = "SELECT sum(sampahbesi) from transaksi where iduser = :iduser",
             nativeQuery = true)

@@ -28,50 +28,59 @@ public class TransaksiService {
 
     public Double getTotalSampahPlastikBank(int idBank){
         Double hasil = transaksiRepository.getTotalSampahPlastikBank(idBank);
+        if (hasil == null) hasil = 0.0;
         return hasil;
     }
 
     public int getTotalSampahBotolBank(int idBank){
-        int hasil = transaksiRepository.getTotalSampahBotolBank(idBank);
+        Integer hasil = transaksiRepository.getTotalSampahBotolBank(idBank);
+        if (hasil == null) hasil = 0;
         return hasil;
     }
 
     public Double getTotalSampahBesiBank(int idBank){
         Double hasil = transaksiRepository.getTotalSampahBesiBank(idBank);
+        if (hasil == null) hasil = 0.0;
         return hasil;
     }
 
     public Double getTotalSampahKertasBank(int idBank){
         Double hasil = transaksiRepository.getTotalSampahKertasBank(idBank);
+        if (hasil == null) hasil = 0.0;
         return hasil;
     }
 
     public Double getTotalSampahPlastikUser(int idUser){
         Double hasil = transaksiRepository.getTotalSampahPlastikUser(idUser);
+        if (hasil == null) hasil = 0.0;
         return hasil;
     }
 
-    public int getTotalSampahBotolUser(int idUser){
-        int hasil = transaksiRepository.getTotalSampahBotolUser(idUser);
+    public Integer getTotalSampahBotolUser(int idUser){
+        Integer hasil = transaksiRepository.getTotalSampahBotolUser(idUser);
+        if (hasil == null) hasil = 0;
         return hasil;
     }
 
     public Double getTotalSampahBesiUser(int idUser){
         Double hasil = transaksiRepository.getTotalSampahBesiUser(idUser);
+        if (hasil == null) hasil = 0.0;
         return hasil;
     }
 
     public Double getTotalSampahKertasUser(int idUser){
         Double hasil = transaksiRepository.getTotalSampahKertasUser(idUser);
+        if (hasil == null) hasil = 0.0;
         return hasil;
     }
 
     public Double getTotalRating(int idBank){
         Double hasil = transaksiRepository.getTotalRating(idBank);
+        if (hasil == null) hasil = 0.0;
         return hasil;
     }
 
-    public int getSaldoByIdBank(int idBank, int idUser){
+    public Integer getSaldoByIdBank(int idBank, int idUser){
         Integer saldo = transaksiRepository.getSaldoByIdBank(idBank, idUser);
         if(saldo == null) saldo = 0;
         return saldo;

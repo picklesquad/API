@@ -28,5 +28,7 @@ public class WithdrawService {
         return withdrawRepository.findByIdBank(idBank);
     }
 
-    public WithdrawEntity getOneWithdrawById(int id){ return withdrawRepository.findOne(id);}
+    public WithdrawEntity save(WithdrawEntity newWithdraw) {
+        return withdrawRepository.save(newWithdraw);
+    }
 }

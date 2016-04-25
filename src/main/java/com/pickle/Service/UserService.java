@@ -3,6 +3,7 @@ package com.pickle.Service;
 import com.pickle.Domain.UserEntity;
 import com.pickle.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,7 +32,14 @@ public class UserService {
         return userRepository.findByFbToken(token);
     }
 
+    public UserEntity getUserByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber);
+    }
     public int getIsComplete(String email) {
         return userRepository.getIsComplete(email);
+    }
+
+    public UserEntity save(UserEntity newUser) {
+        return userRepository.save(newUser);
     }
 }

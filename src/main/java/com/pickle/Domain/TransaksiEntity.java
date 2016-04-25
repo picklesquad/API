@@ -1,5 +1,7 @@
 package com.pickle.Domain;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 
 /**
@@ -21,6 +23,8 @@ public class TransaksiEntity {
     private String sampahKertas;
 
     @Id
+    @GenericGenerator(name="generator" , strategy="increment")
+    @GeneratedValue(generator="generator")
     @Column(name = "id")
     public int getId() {
         return id;

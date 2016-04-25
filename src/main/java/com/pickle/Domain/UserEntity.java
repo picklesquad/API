@@ -1,5 +1,7 @@
 package com.pickle.Domain;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 
 /**
@@ -22,6 +24,8 @@ public class UserEntity {
     private long memberSince;
 
     @Id
+    @GenericGenerator(name="generator" , strategy="increment")
+    @GeneratedValue(generator="generator")
     @Column(name = "id")
     public int getId() {
         return id;

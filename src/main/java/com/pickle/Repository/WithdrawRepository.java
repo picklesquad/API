@@ -16,5 +16,4 @@ public interface WithdrawRepository extends CrudRepository<WithdrawEntity, Integ
     public WithdrawEntity findById(int id);
     public List<WithdrawEntity> findByIdUser(int idUser);
     public List<WithdrawEntity> findByIdBank(int idBank);
-
 }

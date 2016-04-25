@@ -1,6 +1,7 @@
 package com.pickle.Domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
@@ -21,6 +22,8 @@ public class BanksampahEntity {
     private String password;
 
     @Id
+    @GenericGenerator(name="generator" , strategy="increment")
+    @GeneratedValue(generator="generator")
     @Column(name = "id")
     public int getId() {
         return id;
