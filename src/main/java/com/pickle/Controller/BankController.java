@@ -153,6 +153,12 @@ public class BankController {
         return new Wrapper(200, "Success", model);
     }
 
+//    @RequestMapping(path = "/withdraw/updateStatus/{id}", method = RequestMethod.POST)
+//    public Wrapper updateStatusWithdraw(@RequestHeader(value = "id")int id){
+//        WithdrawEntity withdraw = withdrawService.getOneWithdrawById(id);
+//        if(withdraw == null) return
+//    }
+
 //    @RequestMapping(path = "/transaction/addNew", method = RequestMethod.POST)
 //    public Wrapper newTransaction(@RequestParam(""))
 
