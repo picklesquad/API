@@ -1,6 +1,5 @@
 package com.pickle.Service;
 
-import com.pickle.Domain.TransaksiEntity;
 import com.pickle.Domain.WithdrawEntity;
 import com.pickle.Repository.WithdrawRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import java.util.List;
  */
 @Service
 public class WithdrawService {
+
     @Autowired
     private WithdrawRepository withdrawRepository;
 
@@ -28,7 +28,15 @@ public class WithdrawService {
         return withdrawRepository.findByIdBank(idBank);
     }
 
-    public WithdrawEntity save(WithdrawEntity newWithdraw) {
-        return withdrawRepository.save(newWithdraw);
+    public WithdrawEntity getOneWithdrawById(int id) { return withdrawRepository.findOne(id);}
+
+    public WithdrawEntity saveUpdateStatus(int id, WithdrawEntity data, int type){
+        if(data != null){
+            if(type == 1) data.setStatus(1);
+            else if(type == -1) data.setStatus(-1);
+            else data.setStatus(2);
+            withdrawRepository.save(data);
+        }
+        return data;
     }
 }

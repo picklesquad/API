@@ -2,14 +2,10 @@ package com.pickle.Controller;
 
 import com.pickle.Domain.*;
 import com.pickle.Service.*;
-import com.pickle.Util.UserProfileUtil;
-import org.apache.tomcat.jni.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,7 +42,7 @@ public class BankController {
             model.addAttribute("nama",bankResult.getNama());
             model.addAttribute("rating",rating);
             model.addAttribute("totalNasabah", nasabah);
-            UserProfileUtil.countSampahBank(bankResult.getId(), model, transaksiService);
+            sampahBank(bankResult.getId(), model);
             return new Wrapper(200,"Login", model);
         }else{
             return new Wrapper(200,"Gagal", null);
@@ -62,7 +58,7 @@ public class BankController {
         model.addAttribute("phoneNumber", user.getPhoneNumber());
         model.addAttribute("alamat", user.getAlamat());
         model.addAttribute("saldo", user.getSaldo());
-        UserProfileUtil.countSampahUser(id, model, transaksiService);
+        sampahUser(id,model);
         return new Wrapper(200,"Success",model);
     }
 
@@ -154,11 +150,26 @@ public class BankController {
         return new Wrapper(200, "Success", model);
     }
 
-//    @RequestMapping(path = "/withdraw/updateStatus/{id}", method = RequestMethod.POST)
-//    public Wrapper updateStatusWithdraw(@RequestHeader(value = "id")int id){
-//        WithdrawEntity withdraw = withdrawService.getOneWithdrawById(id);
-//        if(withdraw == null) return
-//    }
+    @RequestMapping(path = "/withdraw/updateStatus/accept", method = RequestMethod.PUT)
+    public Wrapper updateStatusWithdrawAccept(@RequestHeader(value = "id")int id){
+        WithdrawEntity data = withdrawService.getWithdrawById(id);
+        WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, 1);
+        return new Wrapper(200, "Success", withdraw);
+    }
+
+    @RequestMapping(path = "/withdraw/updateStatus/reject", method = RequestMethod.PUT)
+    public Wrapper updateStatusWithdrawReject(@RequestHeader(value = "id")int id){
+        WithdrawEntity data = withdrawService.getWithdrawById(id);
+        WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, -1);
+        return new Wrapper(200, "Success", withdraw);
+    }
+
+    @RequestMapping(path = "/withdraw/updateStatus/complete", method = RequestMethod.PUT)
+    public Wrapper updateStatusWithdrawComplete(@RequestHeader(value = "id")int id){
+        WithdrawEntity data = withdrawService.getWithdrawById(id);
+        WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, 2);
+        return new Wrapper(200, "Success", withdraw);
+    }
 
 //    @RequestMapping(path = "/transaction/addNew", method = RequestMethod.POST)
 //    public Wrapper newTransaction(@RequestParam(""))
@@ -184,4 +195,38 @@ public class BankController {
 
         return new Wrapper(200, "Success", result);
     }
+
+
+    /**
+     * Fungsi ini untuk menambahkan data tentang sampah dari user/ bank ke dalam model
+     * @param idBank id bank nya
+     * @param model
+     */
+    public void sampahBank(int idBank, ModelMap model){
+        Double sampahPlastik = transaksiService.getTotalSampahPlastikBank(idBank);
+        int sampahBotol = transaksiService.getTotalSampahBotolBank(idBank);
+        Double sampahBesi = transaksiService.getTotalSampahBesiBank(idBank);
+        Double sampahKertas = transaksiService.getTotalSampahKertasBank(idBank);
+        model.addAttribute("sampahPlastik",sampahPlastik);
+        model.addAttribute("sampahBotol",sampahBotol);
+        model.addAttribute("sampahBesi",sampahBesi);
+        model.addAttribute("sampahKertas",sampahKertas);
+    }
+
+    /**
+     * Fungsi ini untuk menambahkan data tentang sampah dari user/ bank ke dalam model
+     * @param idUser id user nya
+     * @param model
+     */
+    public void sampahUser(int idUser, ModelMap model){
+        Double sampahPlastik = transaksiService.getTotalSampahPlastikUser(idUser);
+        int sampahBotol = transaksiService.getTotalSampahBotolUser(idUser);
+        Double sampahBesi = transaksiService.getTotalSampahBesiUser(idUser);
+        Double sampahKertas = transaksiService.getTotalSampahKertasUser(idUser);
+        model.addAttribute("sampahPlastik",sampahPlastik);
+        model.addAttribute("sampahBotol",sampahBotol);
+        model.addAttribute("sampahBesi",sampahBesi);
+        model.addAttribute("sampahKertas",sampahKertas);
+    }
+
 }
