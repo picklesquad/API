@@ -35,6 +35,11 @@ public class UserService {
     public UserEntity getUserByPhoneNumber(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber);
     }
+
+    public UserEntity getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public int getIsComplete(String email) {
         return userRepository.getIsComplete(email);
     }

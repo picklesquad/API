@@ -5,7 +5,10 @@ import com.pickle.Service.BankService;
 import com.pickle.Service.TransaksiService;
 import com.pickle.Service.UserService;
 import com.pickle.Service.WithdrawService;
+import com.pickle.Util.TokenGenerator;
+import com.pickle.Util.UserProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,10 +38,6 @@ public class UserController{
     @Autowired
     private BankService bankService;
 
-    // constants
-    final int[] LEVEL_THRESHOLD = {0, 100000, 250000, 500000, 2000000, 5000000, 10000000};
-    final String[] LEVEL_NAMES = {"Newbie", "Novice", "Advanced", "Senior", "Master", "King", "Legend"};
-
     @RequestMapping(path = "/login/isComplete", method = RequestMethod.POST)
     public boolean isComplete(@RequestParam("email") String email) {
         int isComplete = userService.getIsComplete(email);
@@ -62,16 +61,17 @@ public class UserController{
         model.addAttribute("id", userResult.getId());
         model.addAttribute("nama", userResult.getNama());
         model.addAttribute("photo", userResult.getPhoto());
-        int userLevel = getLevel(userResult.getExp());
-        model.addAttribute("level", LEVEL_NAMES[userLevel]);
-        model.addAttribute("star", getStar(userResult.getExp(), userLevel));
+        int userLevel = UserProfileUtil.generateLevel(userResult.getExp());
+        model.addAttribute("level", UserProfileUtil.getLevelName(userLevel));
+        model.addAttribute("star", UserProfileUtil.generateStars(userResult.getExp(), userLevel));
         model.addAttribute("exp", userResult.getExp());
         model.addAttribute("memberSince", userResult.getMemberSince());
         model.addAttribute("saldo", userResult.getSaldo());
-        countSampah(userResult.getId(), model);
+        UserProfileUtil.countSampahUser(userResult.getId(), model, transaksiService);
 
         return new Wrapper(200, "Sukses", model);
     }
+
     @RequestMapping(path = "/login/addUser", method = RequestMethod.POST)
     public Wrapper addUser(@RequestParam("nama")String nama,
                            @RequestParam("email")String email,
@@ -86,6 +86,11 @@ public class UserController{
         if (test != null) {
             return new Wrapper(400, "Phone number already registered.", null);
         }
+        // check whether the email has been registered or not
+        test = userService.getUserByEmail(email);
+        if (test != null) {
+            return new Wrapper(400, "E-mail already registered.", null);
+        }
         // end of checking
 
         UserEntity newUser = new UserEntity();
@@ -97,10 +102,10 @@ public class UserController{
         newUser.setAlamat(alamat);
         newUser.setExp(0);
         newUser.setSaldo(0);
-        newUser.setApiToken(generateApiToken(phoneNumber));
+        newUser.setApiToken(TokenGenerator.generateApiToken(phoneNumber));
         newUser.setFbToken(fbToken);
         newUser.setIsComplete(1);
-        newUser.setMemberSince(System.currentTimeMillis());
+        newUser.setMemberSince(UserProfileUtil.generateCurrentTime());
 
         // insert to DB
         newUser = userService.save(newUser);
@@ -140,7 +145,7 @@ public class UserController{
         UserEntity user = userById;
 
         List<WithdrawEntity> withdrawals = withdrawService.getWithdrawByIdUser(user.getId());
-        List<ModelMap> models = new LinkedList<ModelMap>();
+        List<ModelMap> models = new LinkedList<>();
 
         for (WithdrawEntity w : withdrawals) {
             ModelMap model = new ModelMap();
@@ -222,7 +227,7 @@ public class UserController{
         UserEntity user = userById;
 
         List<TransaksiEntity> transactions = transaksiService.getTransaksiByIdUser(user.getId());
-        List<ModelMap> models = new LinkedList<ModelMap>();
+        List<ModelMap> models = new LinkedList<>();
 
         for (TransaksiEntity t : transactions) {
             ModelMap model = new ModelMap();
@@ -239,7 +244,7 @@ public class UserController{
             totalSampah += Double.parseDouble(t.getSampahPlastik());
             model.addAttribute("totalSampah", totalSampah + " kg");
 
-            String[] tanggalWaktu = getTanggalWaktu(t.getWaktu());
+            String[] tanggalWaktu = UserProfileUtil.generateTanggalWaktu(t.getWaktu());
             model.addAttribute("tanggal", tanggalWaktu[0]);
             model.addAttribute("waktu", tanggalWaktu[1]);
             models.add(model);
@@ -284,7 +289,7 @@ public class UserController{
         totalSampah += Double.parseDouble(transactionResult.getSampahPlastik());
         model.addAttribute("totalSampah", totalSampah + " kg");
 
-        String[] tanggalWaktu = getTanggalWaktu(transactionResult.getWaktu());
+        String[] tanggalWaktu = UserProfileUtil.generateTanggalWaktu(transactionResult.getWaktu());
         model.addAttribute("tanggal", tanggalWaktu[0]);
         model.addAttribute("waktu", tanggalWaktu[1]);
 
@@ -339,78 +344,12 @@ public class UserController{
 
         model.addAttribute("namaBank", bankSampah.getNama());
         model.addAttribute("jumlah", newWithdraw.getNominal());
-        model.addAttribute("status", getStatus(newWithdraw.getStatus()));
+        model.addAttribute("status", UserProfileUtil.generateStatus(newWithdraw.getStatus()));
 
-        String[] tanggalWaktu = getTanggalWaktu(newWithdraw.getWaktu());
+        String[] tanggalWaktu = UserProfileUtil.generateTanggalWaktu(newWithdraw.getWaktu());
         model.addAttribute("tanggal", tanggalWaktu[0]);
         model.addAttribute("waktu", tanggalWaktu[1]);
 
         return new Wrapper(201, "New withdraw request has been added!", model);
-    }
-
-    // count total sampah
-    public void countSampah(int id, ModelMap model){
-        Double sampahPlastik = transaksiService.getTotalSampahPlastikUser(id);
-        int sampahBotol = transaksiService.getTotalSampahBotolUser(id);
-        Double sampahBesi = transaksiService.getTotalSampahBesiUser(id);
-        Double sampahKertas = transaksiService.getTotalSampahKertasUser(id);
-        model.addAttribute("sampahPlastik",sampahPlastik);
-        model.addAttribute("sampahBotol",sampahBotol);
-        model.addAttribute("sampahBesi",sampahBesi);
-        model.addAttribute("sampahKertas",sampahKertas);
-    }
-
-    // generate date and time
-    public String[] getTanggalWaktu(long time) {
-        Date date = new Date(time);
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        return formatter.format(date).split(" ");
-    }
-
-    // generate token with format %phoneNumber%
-    public String generateApiToken(String phoneNumber){
-        String stringPool = "abcdefghijklmnopqrstuvwxyz1234567890";
-        Random r = new Random();
-
-        String token = "";
-        int mid = r.nextInt(10);
-        for (int i = 0; i < 10; i++) {
-            token += stringPool.charAt(r.nextInt(stringPool.length()));
-            if (i == mid) token += phoneNumber;
-        }
-        return token;
-    }
-
-    // generate user level given their exp
-    public int getLevel(int exp) {
-        for (int i = 1; i < LEVEL_NAMES.length - 1; i++) {
-            if (exp < LEVEL_THRESHOLD[i]) {
-                return i - 1;
-            }
-        }
-        return LEVEL_NAMES.length;
-    }
-
-    // generate star given their exp end level
-    public int getStar(int exp, int level) {
-        int thisLevelThreshold = LEVEL_THRESHOLD[level];
-        int nextLevelThreshold = level == 7 ? -1 : LEVEL_THRESHOLD[level + 1];
-
-        if (nextLevelThreshold == -1) return 5;
-        else {
-            double expPerStar = (nextLevelThreshold - thisLevelThreshold) / 5;
-            System.out.println(exp + " " + expPerStar + " " + thisLevelThreshold);
-            return (int) Math.ceil((exp - thisLevelThreshold) / expPerStar);
-        }
-    }
-
-    // generate withdrawal status given its status number
-    public String getStatus(int status) {
-        switch (status) {
-            case 2: return "accepted";
-            case 3: return "rejected";
-            case 4: return "completed";
-            default: return "waiting";
-        }
     }
 }
