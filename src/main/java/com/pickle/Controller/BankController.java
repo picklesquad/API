@@ -2,10 +2,14 @@ package com.pickle.Controller;
 
 import com.pickle.Domain.*;
 import com.pickle.Service.*;
+import com.pickle.Util.UserProfileUtil;
+import org.apache.tomcat.jni.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,7 +46,7 @@ public class BankController {
             model.addAttribute("nama",bankResult.getNama());
             model.addAttribute("rating",rating);
             model.addAttribute("totalNasabah", nasabah);
-            sampahBank(bankResult.getId(), model);
+            UserProfileUtil.countSampahBank(bankResult.getId(), model, transaksiService);
             return new Wrapper(200,"Login", model);
         }else{
             return new Wrapper(200,"Gagal", null);
@@ -58,7 +62,7 @@ public class BankController {
         model.addAttribute("phoneNumber", user.getPhoneNumber());
         model.addAttribute("alamat", user.getAlamat());
         model.addAttribute("saldo", user.getSaldo());
-        sampahUser(id,model);
+        UserProfileUtil.countSampahUser(id, model, transaksiService);
         return new Wrapper(200,"Success",model);
     }
 
@@ -195,38 +199,4 @@ public class BankController {
 
         return new Wrapper(200, "Success", result);
     }
-
-
-    /**
-     * Fungsi ini untuk menambahkan data tentang sampah dari user/ bank ke dalam model
-     * @param idBank id bank nya
-     * @param model
-     */
-    public void sampahBank(int idBank, ModelMap model){
-        Double sampahPlastik = transaksiService.getTotalSampahPlastikBank(idBank);
-        int sampahBotol = transaksiService.getTotalSampahBotolBank(idBank);
-        Double sampahBesi = transaksiService.getTotalSampahBesiBank(idBank);
-        Double sampahKertas = transaksiService.getTotalSampahKertasBank(idBank);
-        model.addAttribute("sampahPlastik",sampahPlastik);
-        model.addAttribute("sampahBotol",sampahBotol);
-        model.addAttribute("sampahBesi",sampahBesi);
-        model.addAttribute("sampahKertas",sampahKertas);
-    }
-
-    /**
-     * Fungsi ini untuk menambahkan data tentang sampah dari user/ bank ke dalam model
-     * @param idUser id user nya
-     * @param model
-     */
-    public void sampahUser(int idUser, ModelMap model){
-        Double sampahPlastik = transaksiService.getTotalSampahPlastikUser(idUser);
-        int sampahBotol = transaksiService.getTotalSampahBotolUser(idUser);
-        Double sampahBesi = transaksiService.getTotalSampahBesiUser(idUser);
-        Double sampahKertas = transaksiService.getTotalSampahKertasUser(idUser);
-        model.addAttribute("sampahPlastik",sampahPlastik);
-        model.addAttribute("sampahBotol",sampahBotol);
-        model.addAttribute("sampahBesi",sampahBesi);
-        model.addAttribute("sampahKertas",sampahKertas);
-    }
-
 }
