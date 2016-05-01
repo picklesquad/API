@@ -4,6 +4,7 @@ import com.pickle.Domain.TransaksiEntity;
 import com.pickle.Repository.TransaksiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
@@ -85,5 +86,10 @@ public class TransaksiService {
         if(saldo == null) saldo = 0;
         return saldo;
     }
+
+    public List<Object[]> getBalancePerBank(int idUser) {
+        return transaksiRepository.getBalancePerBank(idUser);
+    }
+
 
 }

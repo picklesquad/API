@@ -5,6 +5,8 @@ import com.pickle.Repository.BankRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Created by andrikurniawan.id@gmail.com on 3/17/2016.
  */
@@ -20,5 +22,9 @@ public class BankService {
 
     public BanksampahEntity findById(int id) {
         return bankRepository.findById(id);
+    }
+
+    public List<BanksampahEntity> searchByLocation(String location) {
+        return bankRepository.findByLocationNameContainingIgnoreCase(location);
     }
 }

@@ -16,7 +16,7 @@ public interface LanggananRepository extends CrudRepository<LanggananEntity, Int
 
     @Query(value = "SELECT count(DISTINCT iduser) as jumlahLangganan from langganan where idbank = :idbank",
             nativeQuery = true)
-    public int countUserSubscribe(@Param("idbank")int idbank);
-
-    public List<LanggananEntity> findByIdbank(int idbank);
+    int countUserSubscribe(@Param("idbank")int idbank);
+    List<LanggananEntity> findByIdbank(int idbank);
+    LanggananEntity findByIdbankAndIduser(int idbank, int iduser);
 }

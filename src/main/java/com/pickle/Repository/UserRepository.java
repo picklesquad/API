@@ -12,13 +12,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends CrudRepository<UserEntity, Integer>{
 
-    public UserEntity findByEmail(String email);
-    public UserEntity findById(int id);
-    public UserEntity findByApiToken(String apiToken);
-    public UserEntity findByFbToken(String fbToken);
-    public UserEntity findByPhoneNumber(String phoneNumber);
+    UserEntity findByEmail(String email);
+    UserEntity findById(int id);
+    UserEntity findByApiToken(String apiToken);
+    UserEntity findByFbToken(String fbToken);
+    UserEntity findByPhoneNumber(String phoneNumber);
 
     @Query(value = "SELECT iscomplete from user where email = :email",
             nativeQuery = true)
-    public int getIsComplete(@Param("email") String email);
+    int getIsComplete(@Param("email") String email);
 }

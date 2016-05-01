@@ -1,6 +1,5 @@
 package com.pickle.Service;
 
-import com.pickle.Domain.TransaksiEntity;
 import com.pickle.Domain.WithdrawEntity;
 import com.pickle.Repository.WithdrawRepository;
 import org.springframework.beans.factory.annotation.Autowired;

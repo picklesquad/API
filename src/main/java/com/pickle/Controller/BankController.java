@@ -2,14 +2,11 @@ package com.pickle.Controller;
 
 import com.pickle.Domain.*;
 import com.pickle.Service.*;
-import com.pickle.Util.UserProfileUtil;
-import org.apache.tomcat.jni.User;
+import com.pickle.Util.PickleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,7 +43,7 @@ public class BankController {
             model.addAttribute("nama",bankResult.getNama());
             model.addAttribute("rating",rating);
             model.addAttribute("totalNasabah", nasabah);
-            UserProfileUtil.countSampahBank(bankResult.getId(), model, transaksiService);
+            PickleUtil.countSampahBank(bankResult.getId(), model, transaksiService);
             return new Wrapper(200,"Login", model);
         }else{
             return new Wrapper(200,"Gagal", null);
@@ -62,7 +59,7 @@ public class BankController {
         model.addAttribute("phoneNumber", user.getPhoneNumber());
         model.addAttribute("alamat", user.getAlamat());
         model.addAttribute("saldo", user.getSaldo());
-        UserProfileUtil.countSampahUser(id, model, transaksiService);
+        PickleUtil.countSampahUser(id, model, transaksiService);
         return new Wrapper(200,"Success",model);
     }
 

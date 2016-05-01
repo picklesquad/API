@@ -3,7 +3,6 @@ package com.pickle.Service;
 import com.pickle.Domain.UserEntity;
 import com.pickle.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.stereotype.Service;
 
 /**

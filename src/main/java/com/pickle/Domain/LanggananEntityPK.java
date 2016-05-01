@@ -11,8 +11,8 @@ public class LanggananEntityPK implements Serializable {
     private int idbank;
     private int iduser;
 
-    @Column(name = "idbank")
     @Id
+    @Column(name = "idbank")
     public int getIdbank() {
         return idbank;
     }
@@ -21,14 +21,14 @@ public class LanggananEntityPK implements Serializable {
         this.idbank = idbank;
     }
 
-    @Column(name = "iduser")
     @Id
+    @Column(name = "iduser")
     public int getIduser() {
         return iduser;
     }
 
-    public void setIduser(int iduser) {
-        this.iduser = iduser;
+    public void setIduser(int idUser) {
+        this.iduser = idUser;
     }
 
     @Override

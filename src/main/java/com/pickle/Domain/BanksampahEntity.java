@@ -14,6 +14,7 @@ public class BanksampahEntity {
     private int id;
     private String nama;
     private String description;
+    private String narahubung;
     private String phoneNumber;
     private String locationLat;
     private String locationLng;
@@ -51,6 +52,16 @@ public class BanksampahEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Basic
+    @Column(name = "narahubung")
+    public String getNarahubung() {
+        return narahubung;
+    }
+
+    public void setNarahubung(String narahubung) {
+        this.narahubung = narahubung;
     }
 
     @Basic
