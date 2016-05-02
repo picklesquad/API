@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLDecoder;
 import java.text.ParseException;
 import java.util.List;
 import java.util.LinkedList;
@@ -99,6 +101,7 @@ public class UserController{
                            @RequestParam("email")String email,
                            @RequestParam("phoneNumber")String phoneNumber,
                            @RequestParam("dateOfBirth")String dob,
+                           @RequestParam("facebookPhoto")String facebookPhoto,
                            @RequestParam("gender")String gender,
                            @RequestParam("alamat")String alamat,
                            @RequestParam("fbToken")String fbToken) {
@@ -121,7 +124,12 @@ public class UserController{
         newUser.setNama(nama);
         newUser.setEmail(email);
         newUser.setPhoneNumber(phoneNumber);
-        newUser.setPhoto("http://xxxxxx.com/image/default.jpg");
+
+        if (facebookPhoto != null && facebookPhoto.length() > 0) {
+            newUser.setPhoto(facebookPhoto);
+        } else {
+            newUser.setPhoto("http://imgbox.com/YXCC1M4W");
+        }
         newUser.setAlamat(alamat);
         newUser.setExp(0);
         newUser.setSaldo(0);
@@ -162,7 +170,7 @@ public class UserController{
                                      @RequestHeader(value="token")String token,
                                      @RequestHeader(value="idUser")int idUser) {
 
-        // check whether logged user is authorized
+        // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
@@ -187,12 +195,18 @@ public class UserController{
         }
         // end of checking
 
-        Integer result = transaksiService.getSaldoByIdBank(idBank, idUser);
-        ModelMap model = new ModelMap();
+        Integer transactionsBalance = transaksiService.getSaldoByIdBank(idBank, idUser);
+        List<WithdrawEntity> withdrawalsInThisBank = withdrawService.getWithdrawByIdUserAndIdBank(idUser, idBank);
+        int withdrawalsBalance = 0;
 
-        BanksampahEntity thisBank = bankService.findById(idBank);
-        model.addAttribute("namaBank", thisBank.getNama());
-        model.addAttribute("balance", result);
+        for (WithdrawEntity w : withdrawalsInThisBank) {
+            if (w.getStatus() == 2 ) {
+                withdrawalsBalance += w.getNominal();
+            }
+        }
+        ModelMap model = new ModelMap();
+        model.addAttribute("namaBank", bankSampah.getNama());
+        model.addAttribute("balance", transactionsBalance - withdrawalsBalance);
 
         return new Wrapper(200, "Success", model);
     }
@@ -207,7 +221,7 @@ public class UserController{
     public Wrapper getBalanceAnyBank(@RequestHeader(value="token")String token,
                                      @RequestHeader(value="idUser")int idUser) {
 
-        // check whether logged user is authorized
+        // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
@@ -227,8 +241,17 @@ public class UserController{
             ModelMap model = new ModelMap();
 
             BanksampahEntity thisBank = bankService.findById((int) records[0]);
+            BigDecimal transcationsBalance = (BigDecimal) records[1];
+
+            List<WithdrawEntity> withdrawalsInThisBank = withdrawService.getWithdrawByIdUserAndIdBank(idUser, thisBank.getId());
+            int withdrawalsBalance = 0;
+
+            for (WithdrawEntity w : withdrawalsInThisBank) {
+                withdrawalsBalance += w.getNominal();
+            }
+            model.addAttribute("idBank", thisBank.getId());
             model.addAttribute("namaBank", thisBank.getNama());
-            model.addAttribute("balance", (BigDecimal) records[1]);
+            model.addAttribute("balance", transcationsBalance.subtract(new BigDecimal(withdrawalsBalance)));
 
             models.add(model);
         }
@@ -245,7 +268,7 @@ public class UserController{
     public Wrapper getWithdrawals(@RequestHeader(value="token")String token,
                                   @RequestHeader(value="idUser")int idUser) {
 
-        // check whether logged user is authorized or not
+        // check whether logged in user is authorized or not
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
@@ -291,7 +314,7 @@ public class UserController{
                                        @RequestHeader(value="token")String token,
                                        @RequestHeader(value="idUser")int idUser) {
 
-        // check whether logged user is authorized or not
+        // check whether logged in user is authorized or not
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
         if (userByToken == null || userById == null) {
@@ -340,7 +363,7 @@ public class UserController{
     public Wrapper getTransactions(@RequestHeader("token")String token,
                                    @RequestHeader("idUser")int idUser) {
 
-        // check whether logged user is authorized or not
+        // check whether logged in user is authorized or not
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
         if (userByToken == null || userById == null) {
@@ -351,8 +374,6 @@ public class UserController{
             return new Wrapper(403,"Forbidden access", null);
         }
         // end of checking
-
-        UserEntity user = userById;
 
         List<TransaksiEntity> transactions = transaksiService.getTransaksiByIdUser(idUser);
         List<ModelMap> models = new LinkedList<>();
@@ -392,7 +413,7 @@ public class UserController{
                                         @RequestHeader(value="token")String token,
                                         @RequestHeader(value="idUser")int idUser){
 
-        // check whether logged user is authorized or not
+        // check whether logged in user is authorized or not
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
@@ -463,7 +484,7 @@ public class UserController{
                                    @RequestParam("tanggal")String tanggal,
                                    @RequestParam("waktu")String waktu) {
 
-        // check whether logged user is authorized
+        // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
@@ -486,6 +507,22 @@ public class UserController{
 
         if (langgananEntity == null) {
             return new Wrapper(403,"You're not subscribed to this bank", null);
+        }
+
+        // check whether this user has sufficient balance or not
+        Integer transactionsBalance = transaksiService.getSaldoByIdBank(idBank, idUser);
+        int withdrawalsBalance = 0;
+        List<WithdrawEntity> withdrawalsInThisBank = withdrawService.getWithdrawByIdUserAndIdBank(idUser, idBank);
+
+        for (WithdrawEntity w : withdrawalsInThisBank) {
+            if (w.getStatus() == 2 ) {
+                withdrawalsBalance += w.getNominal();
+            }
+        }
+        int balance = transactionsBalance - withdrawalsBalance;
+
+        if (balance < jumlah) {
+            return new Wrapper(403,"Insufficient balance", null);
         }
         // end of checking
 
@@ -533,7 +570,7 @@ public class UserController{
                                    @RequestHeader("idUser") int idUser,
                                    @RequestParam("idBank")int idBank) {
 
-        // check whether logged user is authorized
+        // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
@@ -572,7 +609,7 @@ public class UserController{
                                  @RequestHeader("token") String token,
                                  @RequestHeader("idUser") int idUser) {
 
-        // check whether logged user is authorized
+        // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
@@ -629,7 +666,7 @@ public class UserController{
                              @RequestHeader("token") String token,
                              @RequestHeader("idUser") int idUser) {
 
-        // check whether logged user is authorized
+        // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
         if (userByToken == null || userById == null) {
@@ -674,18 +711,18 @@ public class UserController{
     }
 
     /**
-     * Search banks by location
-     * @param location the location given
+     * Search banks by location or bank name
+     * @param query the query, may containing location or bank name, encoded in UTF-8 encoding scheme
      * @param token the user's token
      * @param idUser the user's od
      * @return response body containing search results only if the user is authorized
      */
     @RequestMapping(path = "/search", method = RequestMethod.POST)
-    public Wrapper searchByLocation(@RequestParam("loc") String location,
+    public Wrapper searchByLocation(@RequestParam("query") String query,
                                     @RequestHeader("token") String token,
                                     @RequestHeader("idUser") int idUser) {
 
-        // check whether logged user is authorized
+        // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
@@ -697,9 +734,12 @@ public class UserController{
             return new Wrapper(403,"Forbidden access", null);
         }
 
-        location = location.substring(1, location.length() - 2);
-        List<BanksampahEntity> bankResults = bankService.searchByLocation(location);
-
+        try {
+            query = URLDecoder.decode(query, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return new Wrapper(403, e.getMessage(), null);
+        }
+        List<BanksampahEntity> bankResults = bankService.searchByLocation(query);
         List<ModelMap> models = new LinkedList<>();
 
         for (BanksampahEntity b : bankResults) {
@@ -713,5 +753,40 @@ public class UserController{
             models.add(model);
         }
         return new Wrapper(200, "success", models);
+    }
+
+    @RequestMapping(path = "/updateTransaction", method = RequestMethod.PUT)
+    public Wrapper updateTransaction(@RequestHeader("idTransaksi") int idTransaksi,
+                                     @RequestHeader("status") int status,
+                                     @RequestHeader("token") String token,
+                                     @RequestHeader("idUser") int idUser) {
+
+        // check whether logged in user is authorized
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404,"User not found", null);
+        }
+
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403,"Forbidden access", null);
+        }
+
+        //check whether the transaction exists or not
+        TransaksiEntity transaction = transaksiService.getTransaksiById(idTransaksi);
+
+        if (transaction == null) {
+            return new Wrapper(404,"Transaction not found", null);
+        }
+
+        // verify this user is truly the one who did this transaction
+        if (transaction.getIdUser() != userById.getId()) {
+            return new Wrapper(403,"Forbidden access", null);
+        }
+        // end of checking
+
+        transaction = transaksiService.saveUpdateStatus(transaction, status);
+        return new Wrapper(200, "Success", transaction);
     }
 }

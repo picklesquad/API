@@ -54,11 +54,11 @@ public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Int
             nativeQuery = true)
     Double getTotalRating(@Param("idbank") int idbank);
 
-    @Query(value = "SELECT sum(harga) from transaksi where idbank = :idbank and iduser = :iduser",
+    @Query(value = "SELECT sum(harga) from transaksi where idbank = :idbank and iduser = :iduser and status = 1",
             nativeQuery = true)
     Integer getSaldoByIdBank(@Param("idbank") int idbank, @Param("iduser") int iduser);
 
-    @Query(value = "SELECT idbank, SUM(harga) FROM transaksi WHERE iduser = :iduser GROUP BY idbank",
+    @Query(value = "SELECT idbank, SUM(harga) FROM transaksi WHERE iduser = :iduser and status = 1 GROUP BY idbank",
             nativeQuery = true)
     List<Object[]> getBalancePerBank(@Param("iduser") int iduser);
 }

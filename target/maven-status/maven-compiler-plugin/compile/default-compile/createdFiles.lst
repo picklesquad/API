@@ -5,13 +5,17 @@ com\pickle\Domain\TransaksiEntity.class
 com\pickle\Domain\UserEntity.class
 com\pickle\Domain\BanksampahEntity.class
 com\pickle\Controller\UserController.class
+com\pickle\Repository\WithdrawRepository.class
 com\pickle\Service\LanggananService.class
+com\pickle\Util\PickleUtil.class
+com\pickle\Util\TokenGenerator.class
 com\pickle\PickleApplication.class
 com\pickle\Domain\Wrapper.class
 com\pickle\Repository\UserRepository.class
 com\pickle\Domain\LanggananEntity.class
 com\pickle\Repository\LanggananRepository.class
 com\pickle\Controller\BankController.class
+com\pickle\Service\WithdrawService.class
 com\pickle\Service\TransaksiService.class
 com\pickle\Service\UserService.class
 com\pickle\Repository\TransaksiRepository.class

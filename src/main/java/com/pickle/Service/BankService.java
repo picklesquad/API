@@ -24,7 +24,7 @@ public class BankService {
         return bankRepository.findById(id);
     }
 
-    public List<BanksampahEntity> searchByLocation(String location) {
-        return bankRepository.findByLocationNameContainingIgnoreCase(location);
+    public List<BanksampahEntity> searchByLocation(String query) {
+        return bankRepository.findByLocationNameContainingIgnoreCaseOrNamaContainingIgnoreCase(query, query);
     }
 }

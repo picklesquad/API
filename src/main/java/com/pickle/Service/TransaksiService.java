@@ -91,5 +91,11 @@ public class TransaksiService {
         return transaksiRepository.getBalancePerBank(idUser);
     }
 
-
+    public TransaksiEntity saveUpdateStatus(TransaksiEntity transaction, int newStatus) {
+        if (transaction != null) {
+            transaction.setStatus(newStatus);
+            transaksiRepository.save(transaction);
+        }
+        return transaction;
+    }
 }
