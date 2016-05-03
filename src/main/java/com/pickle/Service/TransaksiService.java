@@ -98,4 +98,8 @@ public class TransaksiService {
         }
         return transaction;
     }
+
+    public TransaksiEntity save(TransaksiEntity transaksi){
+        return transaksiRepository.save(transaksi);
+    }
 }
