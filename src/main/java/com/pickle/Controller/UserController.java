@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
-import java.text.ParseException;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -43,13 +42,21 @@ public class UserController{
      * @return true if the user has completed his/her data, otherwise false
      */
     @RequestMapping(path = "/login/isComplete", method = RequestMethod.POST)
-    public boolean isComplete(@RequestParam("email") String email) {
+    public Wrapper isComplete(@RequestParam("email") String email) {
+        // check whether the email given exists or not
+        UserEntity userResult = userService.validation(email);
+
+        if (userResult == null) {
+            return new Wrapper(404, "Email not found", null);
+        }
+        // end of checking
+
         int isComplete = userService.getIsComplete(email);
 
         if (isComplete == 0) {
-            return false;
+            return new Wrapper(200, "Success", false);
         } else {
-            return true;
+            return new Wrapper(200, "Success", true);
         }
     }
 
@@ -64,7 +71,7 @@ public class UserController{
         UserEntity userResult = userService.validation(email);
 
         if (userResult == null) {
-            return new Wrapper(200, "Login failed.", null);
+            return new Wrapper(404, "Login failed, email not found", null);
         }
         // end of checking
 
@@ -161,8 +168,8 @@ public class UserController{
     /**
      * Get user's balance in a specified bank
      * @param idBank the bank id
-     * @param token the user's token
-     * @param idUser the user's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized and the bank exists
      */
     @RequestMapping(path = "/balance/{id}", method = RequestMethod.GET)
@@ -213,8 +220,8 @@ public class UserController{
 
     /**
      * Get user's balance in all bank he/she subscribes to
-     * @param token the user's token
-     * @param idUser the user's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized
      */
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
@@ -260,8 +267,8 @@ public class UserController{
 
     /**
      * Get user's withdrawals history in all banks he/she subscribed to
-     * @param token the user's token
-     * @param idUser the user's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized
      */
     @RequestMapping(path = "/withdrawals", method = RequestMethod.GET)
@@ -293,10 +300,7 @@ public class UserController{
 
             model.addAttribute("nominal", w.getNominal());
             model.addAttribute("status", w.getStatus());
-
-            String[] tanggalWaktu = PickleUtil.generateTanggalWaktu(w.getWaktu());
-            model.addAttribute("tanggal", tanggalWaktu[0]);
-            model.addAttribute("waktu", tanggalWaktu[1]);
+            model.addAttribute("waktu", w.getWaktu());
             models.add(model);
         }
         return new Wrapper(200, "Success", models);
@@ -305,8 +309,8 @@ public class UserController{
     /**
      * Get user's withdrawal history with a specified id
      * @param id the withdrawal id
-     * @param token the user's token
-     * @param idUser the user's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized and the withdrawal exists
      */
     @RequestMapping(path = "/withdrawal/{id}", method = RequestMethod.GET)
@@ -317,6 +321,7 @@ public class UserController{
         // check whether logged in user is authorized or not
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
+
         if (userByToken == null || userById == null) {
             return new Wrapper(404,"User not found.", null);
         }
@@ -335,6 +340,13 @@ public class UserController{
         if(withdrawResult.getIdUser() != userById.getId()) {
             return new Wrapper(403,"Forbidden access.", null);
         }
+
+        // check whether this user has subscribed to this bank or not
+        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(withdrawResult.getIdBank(), idUser);
+
+        if (langgananEntity == null) {
+            return new Wrapper(403,"You're not subscribed to this bank", null);
+        }
         // end of checking
 
         ModelMap model = new ModelMap();
@@ -345,18 +357,14 @@ public class UserController{
 
         model.addAttribute("jumlah", withdrawResult.getNominal());
         model.addAttribute("status", withdrawResult.getStatus());
-
-        String[] tanggalWaktu = PickleUtil.generateTanggalWaktu(withdrawResult.getWaktu());
-        model.addAttribute("tanggal", tanggalWaktu[0]);
-        model.addAttribute("waktu", tanggalWaktu[1]);
-
+        model.addAttribute("waktu", withdrawResult.getWaktu());
         return new Wrapper(200, "Success", model);
     }
 
     /**
      * Get user's transactions history in all banks he/she subscribed to
-     * @param token the user's token
-     * @param idUser the user's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized
      */
     @RequestMapping(path = "/transaction", method = RequestMethod.GET)
@@ -392,10 +400,7 @@ public class UserController{
             totalSampah += Double.parseDouble(t.getSampahKertas());
             totalSampah += Double.parseDouble(t.getSampahPlastik());
             model.addAttribute("totalSampah", totalSampah + " kg");
-
-            String[] tanggalWaktu = PickleUtil.generateTanggalWaktu(t.getWaktu());
-            model.addAttribute("tanggal", tanggalWaktu[0]);
-            model.addAttribute("waktu", tanggalWaktu[1]);
+            model.addAttribute("waktu", t.getWaktu());
             models.add(model);
         }
         return new Wrapper(200, "Success", models);
@@ -404,8 +409,8 @@ public class UserController{
     /**
      * Get user's transaction history with a specified id
      * @param id the transaction id
-     * @param token the user's token
-     * @param idUser the user's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized and the transaction exists
      */
     @RequestMapping(path = "/transaction/{id}", method = RequestMethod.GET)
@@ -458,22 +463,19 @@ public class UserController{
         totalSampah += Double.parseDouble(transactionResult.getSampahKertas());
         totalSampah += Double.parseDouble(transactionResult.getSampahPlastik());
         model.addAttribute("totalSampah", totalSampah + " kg");
-
-        String[] tanggalWaktu = PickleUtil.generateTanggalWaktu(transactionResult.getWaktu());
-        model.addAttribute("tanggal", tanggalWaktu[0]);
-        model.addAttribute("waktu", tanggalWaktu[1]);
+        model.addAttribute("waktu", transactionResult.getWaktu());
 
         return new Wrapper(200,"Success", model);
     }
 
     /**
-     * Requesting new withdrawal in a specified bank
-     * @param token the user's token
-     * @param idUser the user's id
+     * Requesting new withdrawal in a specified bank, assuming 90 days has been passed
+     * since the user's first transaction
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @param idBank the bank id
      * @param jumlah the withdrawal amount
-     * @param tanggal the withdrawal date
-     * @param waktu the withdrawal time
+     * @param waktu the withdrawal time, in java time millis
      * @return response body containing the withdrawal data only if the user is authorized and the bank exists
      */
     @RequestMapping(path = "/requestWithdraw", method = RequestMethod.POST)
@@ -481,8 +483,7 @@ public class UserController{
                                    @RequestHeader("idUser")int idUser,
                                    @RequestParam("idBank")int idBank,
                                    @RequestParam("jumlah")int jumlah,
-                                   @RequestParam("tanggal")String tanggal,
-                                   @RequestParam("waktu")String waktu) {
+                                   @RequestParam("waktu")long waktu) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -531,15 +532,7 @@ public class UserController{
         newWithdraw.setIdUser(idUser);
         newWithdraw.setIdBank(idBank);
         newWithdraw.setNominal(jumlah);
-
-        long millis;
-
-        try {
-            millis = PickleUtil.generateTimeMillis(tanggal, waktu);
-        } catch (ParseException e) {
-            return new Wrapper(400,"Invalid data: " + tanggal + " or " + waktu, null);
-        }
-        newWithdraw.setWaktu(millis);
+        newWithdraw.setWaktu(waktu);
 
         // insert into DB
         newWithdraw = withdrawService.save(newWithdraw);
@@ -549,19 +542,17 @@ public class UserController{
         model.addAttribute("namaBank", bankSampah.getNama());
         model.addAttribute("jumlah", newWithdraw.getNominal());
         model.addAttribute("status", PickleUtil.generateStatus(newWithdraw.getStatus()));
-
-        String[] tanggalWaktu = PickleUtil.generateTanggalWaktu(newWithdraw.getWaktu());
-        model.addAttribute("tanggal", tanggalWaktu[0]);
-        model.addAttribute("waktu", tanggalWaktu[1]);
+        model.addAttribute("waktu", newWithdraw.getWaktu());
 
         return new Wrapper(201, "New withdraw request has been added", model);
     }
 
     /**
-     * Condition must be satisfied so that user can request new withdrawal: has been subscribed
-     * to that bank at least 90 days. This method returns that number of days
-     * @param token the user's token
-     * @param idUser the user's id
+     * Condition must be satisfied so that user can request new withdrawal: 90 days has been passed
+     * since his/her first transaction. This method returns the number of day and
+     * a boolean true if more than 90 days has been passed, false otherwise.
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @param idBank the bank's id
      * @return response body containing the number of days only if the user is authorized and the bank exists
      */
@@ -582,6 +573,13 @@ public class UserController{
             return new Wrapper(403,"Forbidden access", null);
         }
 
+        // check whether the bank exists or not
+        BanksampahEntity bankSampah = bankService.findById(idBank);
+
+        if (bankSampah == null) {
+            return new Wrapper(404,"Bank sampah not found", null);
+        }
+
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
 
@@ -590,18 +588,34 @@ public class UserController{
         }
         // end of checking
 
-        long firstTransactionDate = langgananEntity.getTransaksiPertama();
+        long firstTransactionTime = langgananEntity.getTransaksiPertama();
         long currentTime = System.currentTimeMillis();
-        double daysRegistered = PickleUtil.countDays(firstTransactionDate, currentTime);
+        double numberOfDays = PickleUtil.countDays(firstTransactionTime, currentTime);
 
-        return new Wrapper(200, "Success", daysRegistered);
+        ModelMap model = new ModelMap();
+
+        // firstTransactionTime = -1 means no transaction has been made, therefore can't withdraw
+        if (firstTransactionTime == -1) {
+            model.addAttribute("jumlahHari", -1);
+            model.addAttribute("boolean:", false);
+            return new Wrapper(200, "Success", model);
+        }
+        model.addAttribute("jumlahHari", numberOfDays);
+
+        if (numberOfDays >= 90) {
+            model.addAttribute("boolean:", true);
+            return new Wrapper(200, "Success", model);
+        } else {
+            model.addAttribute("boolean:", false);
+            return new Wrapper(200, "Success", model);
+        }
     }
 
     /**
      * Get a specified bank's profile
      * @param idBank the bank's id
-     * @param token the user's token
-     * @param idUser the user's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized and the bank exists
      */
     @RequestMapping(path = "/bank/getDetail/{id}", method = RequestMethod.GET)
@@ -657,11 +671,11 @@ public class UserController{
     /**
      * Subscribe to a specified bank
      * @param idBank the bank's id
-     * @param token the user's token
-     * @param idUser the user's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @return response body containing the subscription data only if the user is authorized and the bank exists
      */
-    @RequestMapping(path = "/bank/subscribe", method = RequestMethod.POST)
+    @RequestMapping(path = "/bank/subscribe ", method = RequestMethod.POST)
     public Wrapper subscribe(@RequestParam("idBank") int idBank,
                              @RequestHeader("token") String token,
                              @RequestHeader("idUser") int idUser) {
@@ -713,8 +727,8 @@ public class UserController{
     /**
      * Search banks by location or bank name
      * @param query the query, may containing location or bank name, encoded in UTF-8 encoding scheme
-     * @param token the user's token
-     * @param idUser the user's od
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
      * @return response body containing search results only if the user is authorized
      */
     @RequestMapping(path = "/search", method = RequestMethod.POST)
@@ -737,7 +751,7 @@ public class UserController{
         try {
             query = URLDecoder.decode(query, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            return new Wrapper(403, e.getMessage(), null);
+            return new Wrapper(400, e.getMessage(), null);
         }
         List<BanksampahEntity> bankResults = bankService.searchByLocation(query);
         List<ModelMap> models = new LinkedList<>();
@@ -755,6 +769,14 @@ public class UserController{
         return new Wrapper(200, "success", models);
     }
 
+    /**
+     * Update transaction status, possible actions: accept or reject
+     * @param idTransaksi the transaction's id
+     * @param status the status to be applied. 1 for accept, -1 for reject
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @return response body containing the transaction after being updated only if the user is authorized
+     */
     @RequestMapping(path = "/updateTransaction", method = RequestMethod.PUT)
     public Wrapper updateTransaction(@RequestHeader("idTransaksi") int idTransaksi,
                                      @RequestHeader("status") int status,
@@ -773,11 +795,18 @@ public class UserController{
             return new Wrapper(403,"Forbidden access", null);
         }
 
-        //check whether the transaction exists or not
+        // check whether the transaction exists or not
         TransaksiEntity transaction = transaksiService.getTransaksiById(idTransaksi);
 
         if (transaction == null) {
             return new Wrapper(404,"Transaction not found", null);
+        }
+
+        // check whether the transaction was made in a bank he/she already subscribed to or not
+        LanggananEntity subscription = langgananService.isSubscribedToThisBank(transaction.getIdBank(), idUser);
+
+        if (subscription == null) {
+            return new Wrapper(403,"You're not subscribed to this bank", null);
         }
 
         // verify this user is truly the one who did this transaction
@@ -786,7 +815,14 @@ public class UserController{
         }
         // end of checking
 
+        // update the status
         transaction = transaksiService.saveUpdateStatus(transaction, status);
+
+        // check whether this is the user's first transaction or not
+        if (subscription.getTransaksiPertama() == -1) {
+            subscription.setTransaksiPertama(PickleUtil.generateCurrentTime());
+            langgananService.save(subscription);
+        }
         return new Wrapper(200, "Success", transaction);
     }
 }

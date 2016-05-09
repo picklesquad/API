@@ -18,30 +18,6 @@ public class PickleUtil {
     private static final long MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
     /**
-     * Converts date and time to time millis format
-     * @param tanggal the date
-     * @param waktu the time
-     * @return the time millis format
-     * @throws ParseException if the date or date given is not in supported format
-     */
-    public static long generateTimeMillis(String tanggal, String waktu) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        Date date = formatter.parse(tanggal + " " + waktu);
-        return date.getTime();
-    }
-
-    /**
-     * Converts time millis format to two strings: date and time
-     * @param time the time millis
-     * @return date and time saved in an array of strings
-     */
-    public static String[] generateTanggalWaktu(long time) {
-        Date date = new Date(time);
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        return formatter.format(date).split(" ");
-    }
-
-    /**
      * Converts user exp to its corresponding level
      * @param exp the user exp
      * @return the corresponding level
@@ -140,12 +116,12 @@ public class PickleUtil {
     }
 
     /**
-     * Calculate number of days given two different time
+     * Calculate days between two different time
      * @param then the older time
      * @param now the newer time
      * @return number of days separating those time
      */
-    public static double countDays(long then, long now) {
+    public static long countDays(long then, long now) {
         Date dateThen = new Date(then);
         Date dateNow = new Date(now);
 
