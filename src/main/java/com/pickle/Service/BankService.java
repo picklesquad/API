@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
+ * Services provided by BankRepository
  * Created by andrikurniawan.id@gmail.com on 3/17/2016.
  */
 @Service

@@ -7,7 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Created by andrikurniawan.id@gmail.com on 3/17/2016.
+ * JPA Repository interface for table "banksampah"
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 @Repository
 public interface BankRepository extends CrudRepository<BanksampahEntity, Integer> {

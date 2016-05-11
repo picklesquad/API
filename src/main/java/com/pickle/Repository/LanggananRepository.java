@@ -9,14 +9,17 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Created by andrikurniawan.id@gmail.com on 3/28/2016.
+ * JPA Repository interface for table "langganan"
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 @Repository
 public interface LanggananRepository extends CrudRepository<LanggananEntity, Integer>{
 
+    List<LanggananEntity> findByIdbank(int idbank);
+    LanggananEntity findByIdbankAndIduser(int idbank, int iduser);
+
     @Query(value = "SELECT count(DISTINCT iduser) as jumlahLangganan from langganan where idbank = :idbank",
             nativeQuery = true)
     int countUserSubscribe(@Param("idbank")int idbank);
-    List<LanggananEntity> findByIdbank(int idbank);
-    LanggananEntity findByIdbankAndIduser(int idbank, int iduser);
 }

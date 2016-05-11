@@ -7,15 +7,35 @@ import org.springframework.ui.ModelMap;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 /**
+ * Common utilities used across all classes
  * Created by Syukri Mullia Adil P on 4/25/2016.
  */
 public class PickleUtil {
 
     private static final int[] LEVEL_THRESHOLD = {0, 100000, 250000, 500000, 2000000, 5000000, 10000000};
     private static final String[] LEVEL_NAMES = {"Newbie", "Novice", "Advanced", "Senior", "Master", "King", "Legend"};
-    private static final long MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
+    private static final long MILLIS_PER_DAY = 60 * 60 * 24 * 1000;
+    private static final String stringPool = "abcdefghijklmnopqrstuvwxyz1234567890";
+    private static final Random r = new Random();
+
+    /**
+     * generate token with format %phoneNumber%
+     *
+     * @param phoneNumber the user's phoneNumber
+     * @return token generated
+     */
+    public static String generateApiToken(String phoneNumber){
+        String token = "";
+        int mid = r.nextInt(10);
+        for (int i = 0; i < 10; i++) {
+            token += stringPool.charAt(r.nextInt(stringPool.length()));
+            if (i == mid) token += phoneNumber;
+        }
+        return token;
+    }
 
     /**
      * Converts user exp to its corresponding level

@@ -7,7 +7,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Created by andrikurniawan.id@gmail.com on 3/17/2016.
+ * JPA Repository interface for table "user"
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 @Repository
 public interface UserRepository extends CrudRepository<UserEntity, Integer>{

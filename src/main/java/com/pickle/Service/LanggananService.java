@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
+ * Services provided by LanggananRepository
  * Created by andrikurniawan.id@gmail.com on 3/28/2016.
  */
 @Service

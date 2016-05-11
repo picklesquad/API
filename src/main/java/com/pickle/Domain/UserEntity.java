@@ -5,7 +5,12 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 /**
- * Created by andrikurniawan.id@gmail.com on 3/23/2016.
+ * Entity for User.
+ *
+ * <p>Describes persistence mappings for table "user"</p>
+ *
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 @Entity
 @Table(name = "user", schema = "pickle_dev", catalog = "")

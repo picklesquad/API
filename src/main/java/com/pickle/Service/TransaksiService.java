@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
+ * Services provided by TransaksiRepository
  * Created by andrikurniawan.id@gmail.com on 3/28/2016.
  */
 @Service
@@ -25,6 +26,10 @@ public class TransaksiService {
 
     public List<TransaksiEntity> getTransaksiByIdBank(int idBank) {
         return transaksiRepository.findByIdBank(idBank);
+    }
+
+    public List<TransaksiEntity> getTransaksiByIdbankAndIduser(int idBank, int idUser) {
+        return transaksiRepository.findByIdBankAndIdUser(idBank, idUser);
     }
 
     public Double getTotalSampahPlastikBank(int idBank){
@@ -81,7 +86,7 @@ public class TransaksiService {
         return hasil;
     }
 
-    public Integer getSaldoByIdBank(int idBank, int idUser){
+    public Integer getUserBalanceByIdBank(int idBank, int idUser){
         Integer saldo = transaksiRepository.getSaldoByIdBank(idBank, idUser);
         if(saldo == null) saldo = 0;
         return saldo;

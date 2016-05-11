@@ -9,7 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Created by andrikurniawan.id@gmail.com on 3/28/2016.
+ * JPA Repository interface for table "transaksi"
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 @Repository
 public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Integer> {
@@ -17,6 +19,7 @@ public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Int
     TransaksiEntity findById(int id);
     List<TransaksiEntity> findByIdUser(int idUser);
     List<TransaksiEntity> findByIdBank(int idBank);
+    List<TransaksiEntity> findByIdBankAndIdUser(int idBank, int idUser);
 
     @Query(value = "SELECT sum(sampahplastik) from transaksi where idbank = :idbank",
             nativeQuery = true)

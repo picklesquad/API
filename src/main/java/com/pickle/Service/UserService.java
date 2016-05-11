@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
+ * Services provided by UserRepository
  * Created by andrikurniawan.id@gmail.com on 3/17/2016.
  */
 @Service

@@ -14,7 +14,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by andrikurniawan.id@gmail.com on 3/17/2016.
+ * API Controller - Bank App.
+ * <p>Determines RESTful API used by Pickle Bank App.</p>
+ *
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 @RestController
 @RequestMapping("/bank")
@@ -81,7 +85,7 @@ public class BankController {
             model.addAttribute("id", user.getId());
             model.addAttribute("nama", user.getNama());
             model.addAttribute("photo", user.getPhoto());
-            int saldo = transaksiService.getSaldoByIdBank(idbank, user.getId());
+            int saldo = transaksiService.getUserBalanceByIdBank(idbank, user.getId());
             model.addAttribute("saldo", saldo);
             result.add(model);
         }

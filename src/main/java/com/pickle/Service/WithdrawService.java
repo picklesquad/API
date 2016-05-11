@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
+ * Services provided by TransaksiRepository
  * Created by Syukri Mullia Adil P on 4/17/2016.
  */
 @Service

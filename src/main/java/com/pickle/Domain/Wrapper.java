@@ -1,7 +1,12 @@
 package com.pickle.Domain;
 
 /**
- * Created by andrikurniawan.id@gmail.com on 3/23/2016.
+ * Wrapper for API responses
+ *
+ * <p>Determines the API responses as 3 core properties: the status, the message, and the data.</p>
+ *
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 public class Wrapper <E> {
     private int status;
@@ -25,9 +30,6 @@ public class Wrapper <E> {
     public E getData() { return data; }
 
     public void setData(E data) { this.data = data; }
-
-    public Wrapper() {
-    }
 
     public Wrapper(int status, String message, E data) {
 

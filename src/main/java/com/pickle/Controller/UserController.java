@@ -3,7 +3,6 @@ package com.pickle.Controller;
 import com.pickle.Domain.*;
 import com.pickle.Service.*;
 import com.pickle.Util.PickleUtil;
-import com.pickle.Util.TokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +14,11 @@ import java.util.List;
 import java.util.LinkedList;
 
 /**
- * Created by andrikurniawan.id@gmail.com on 3/17/2016.
+ * API Controller - User App.
+ * <p>Determines RESTful API used by Pickle User App.</p>
+ *
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 @RestController
 @RequestMapping("/user")
@@ -37,9 +40,15 @@ public class UserController{
     private LanggananService langgananService;
 
     /**
-     * Check whether the user has completed his/her data or not
+     * Checks whether the user has completed his/her data or not.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether the email given exists or not</li>
+     * </ol>
+     * </p>
      * @param email the user's email
-     * @return true if the user has completed his/her data, otherwise false
+     * @return response body containing true if the user has completed his/her data, otherwise false
      */
     @RequestMapping(path = "/login/isComplete", method = RequestMethod.POST)
     public Wrapper isComplete(@RequestParam("email") String email) {
@@ -61,7 +70,13 @@ public class UserController{
     }
 
     /**
-     * Login for registered user
+     * Login for registered user.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether the email given exists or not.</li>
+     * </ol>
+     * </p>
      * @param email the user's email
      * @return response body containing his/her profile
      */
@@ -71,12 +86,16 @@ public class UserController{
         UserEntity userResult = userService.validation(email);
 
         if (userResult == null) {
-            return new Wrapper(404, "Login failed, email not found", null);
+            return new Wrapper(404, "Email not found", null);
         }
         // end of checking
 
+//        userResult.setApiToken(PickleUtil.generateApiToken(userResult.getPhoneNumber()));
+//        userResult = userService.save(userResult);
+
         ModelMap model = new ModelMap();
         model.addAttribute("id", userResult.getId());
+        model.addAttribute("apiToken", userResult.getApiToken());
         model.addAttribute("nama", userResult.getNama());
         model.addAttribute("photo", userResult.getPhoto());
 
@@ -93,7 +112,14 @@ public class UserController{
     }
 
     /**
-     * Login for new user who just registered
+     * Login for new user who just registered.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether the phone number has been registered or not.</li>
+     *     <li>Check whether the email has been registered or not.</li>
+     * </ol>
+     * </p>
      * @param nama the user's name
      * @param email the user's email
      * @param phoneNumber the user's phone number
@@ -104,7 +130,7 @@ public class UserController{
      * @return response body containing his/her profile
      */
     @RequestMapping(path = "/login/addUser", method = RequestMethod.POST)
-    public Wrapper addUser(@RequestParam("nama")String nama,
+    public Wrapper register(@RequestParam("nama")String nama,
                            @RequestParam("email")String email,
                            @RequestParam("phoneNumber")String phoneNumber,
                            @RequestParam("dateOfBirth")String dob,
@@ -140,7 +166,7 @@ public class UserController{
         newUser.setAlamat(alamat);
         newUser.setExp(0);
         newUser.setSaldo(0);
-        newUser.setApiToken(TokenGenerator.generateApiToken(phoneNumber));
+        newUser.setApiToken(PickleUtil.generateApiToken(phoneNumber));
         newUser.setFbToken(fbToken);
         newUser.setIsComplete(1);
         newUser.setMemberSince(PickleUtil.generateCurrentTime());
@@ -150,6 +176,7 @@ public class UserController{
 
         ModelMap model = new ModelMap();
         model.addAttribute("id", newUser.getId());
+//        model.addAttribute("apiToken", newUser.getApiToken());
         model.addAttribute("nama", newUser.getNama());
         model.addAttribute("photo", newUser.getPhoto());
         model.addAttribute("level", "newbie");
@@ -166,66 +193,21 @@ public class UserController{
     }
 
     /**
-     * Get user's balance in a specified bank
-     * @param idBank the bank id
-     * @param token the user's token, for authentication
-     * @param idUser the user's id, for authentication
-     * @return response body containing the data only if the user is authorized and the bank exists
-     */
-    @RequestMapping(path = "/balance/{id}", method = RequestMethod.GET)
-    public Wrapper getBalancePerBank(@PathVariable("id") int idBank,
-                                     @RequestHeader(value="token")String token,
-                                     @RequestHeader(value="idUser")int idUser) {
-
-        // check whether logged in user is authorized
-        UserEntity userByToken = userService.getUserByApiToken(token);
-        UserEntity userById = userService.getUserById(idUser);
-
-        if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
-        }
-
-        if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
-        }
-
-        // check whether the bank exists or not
-        BanksampahEntity bankSampah = bankService.findById(idBank);
-        if (bankSampah == null) {
-            return new Wrapper(404,"Bank sampah not found", null);
-        }
-
-        // check whether this user has subscribed to this bank or not
-        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
-        if (langgananEntity == null) {
-            return new Wrapper(403,"You're not subscribed to this bank", null);
-        }
-        // end of checking
-
-        Integer transactionsBalance = transaksiService.getSaldoByIdBank(idBank, idUser);
-        List<WithdrawEntity> withdrawalsInThisBank = withdrawService.getWithdrawByIdUserAndIdBank(idUser, idBank);
-        int withdrawalsBalance = 0;
-
-        for (WithdrawEntity w : withdrawalsInThisBank) {
-            if (w.getStatus() == 2 ) {
-                withdrawalsBalance += w.getNominal();
-            }
-        }
-        ModelMap model = new ModelMap();
-        model.addAttribute("namaBank", bankSampah.getNama());
-        model.addAttribute("balance", transactionsBalance - withdrawalsBalance);
-
-        return new Wrapper(200, "Success", model);
-    }
-
-    /**
-     * Get user's balance in all bank he/she subscribes to
+     * Gets user's balance in all bank he/she subscribes to.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     * </ol>
+     * <br>
+     * User's balance is calculated through all transactions with status = 2 minus all withdrawal with status = 1.
+     * </p>
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized
      */
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
-    public Wrapper getBalanceAnyBank(@RequestHeader(value="token")String token,
+    public Wrapper getAllBalance(@RequestHeader(value="token")String token,
                                      @RequestHeader(value="idUser")int idUser) {
 
         // check whether logged in user is authorized
@@ -233,11 +215,11 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
+            return new Wrapper(404, "User not found", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
+            return new Wrapper(403, "Forbidden access", null);
         }
         // end of checking
 
@@ -266,379 +248,103 @@ public class UserController{
     }
 
     /**
-     * Get user's withdrawals history in all banks he/she subscribed to
-     * @param token the user's token, for authentication
-     * @param idUser the user's id, for authentication
-     * @return response body containing the data only if the user is authorized
-     */
-    @RequestMapping(path = "/withdrawals", method = RequestMethod.GET)
-    public Wrapper getWithdrawals(@RequestHeader(value="token")String token,
-                                  @RequestHeader(value="idUser")int idUser) {
-
-        // check whether logged in user is authorized or not
-        UserEntity userByToken = userService.getUserByApiToken(token);
-        UserEntity userById = userService.getUserById(idUser);
-
-        if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
-        }
-
-        if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
-        }
-        // end of checking
-
-        List<WithdrawEntity> withdrawals = withdrawService.getWithdrawByIdUser(idUser);
-        List<ModelMap> models = new LinkedList<>();
-
-        for (WithdrawEntity w : withdrawals) {
-            ModelMap model = new ModelMap();
-            model.addAttribute("idWithdraw", w.getId());
-
-            BanksampahEntity bankResult = bankService.findById(w.getIdBank());
-            model.addAttribute("namaBank", bankResult.getNama());
-
-            model.addAttribute("nominal", w.getNominal());
-            model.addAttribute("status", w.getStatus());
-            model.addAttribute("waktu", w.getWaktu());
-            models.add(model);
-        }
-        return new Wrapper(200, "Success", models);
-    }
-
-    /**
-     * Get user's withdrawal history with a specified id
-     * @param id the withdrawal id
-     * @param token the user's token, for authentication
-     * @param idUser the user's id, for authentication
-     * @return response body containing the data only if the user is authorized and the withdrawal exists
-     */
-    @RequestMapping(path = "/withdrawal/{id}", method = RequestMethod.GET)
-    public Wrapper getWithdrawalDetail(@PathVariable("id") int id,
-                                       @RequestHeader(value="token")String token,
-                                       @RequestHeader(value="idUser")int idUser) {
-
-        // check whether logged in user is authorized or not
-        UserEntity userByToken = userService.getUserByApiToken(token);
-        UserEntity userById = userService.getUserById(idUser);
-
-        if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found.", null);
-        }
-
-        if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access.", null);
-        }
-
-        // check whether desired withdraw id exists or not
-        WithdrawEntity withdrawResult = withdrawService.getWithdrawById(id);
-        if (withdrawResult == null) {
-            return new Wrapper(404, "Withdrawal not found.", null);
-        }
-
-        // verify this user is truly the one who did this withdrawal
-        if(withdrawResult.getIdUser() != userById.getId()) {
-            return new Wrapper(403,"Forbidden access.", null);
-        }
-
-        // check whether this user has subscribed to this bank or not
-        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(withdrawResult.getIdBank(), idUser);
-
-        if (langgananEntity == null) {
-            return new Wrapper(403,"You're not subscribed to this bank", null);
-        }
-        // end of checking
-
-        ModelMap model = new ModelMap();
-        model.addAttribute("idWithdraw", withdrawResult.getId());
-
-        BanksampahEntity bankResult = bankService.findById(withdrawResult.getIdBank());
-        model.addAttribute("namaBank", bankResult.getNama());
-
-        model.addAttribute("jumlah", withdrawResult.getNominal());
-        model.addAttribute("status", withdrawResult.getStatus());
-        model.addAttribute("waktu", withdrawResult.getWaktu());
-        return new Wrapper(200, "Success", model);
-    }
-
-    /**
-     * Get user's transactions history in all banks he/she subscribed to
-     * @param token the user's token, for authentication
-     * @param idUser the user's id, for authentication
-     * @return response body containing the data only if the user is authorized
-     */
-    @RequestMapping(path = "/transaction", method = RequestMethod.GET)
-    public Wrapper getTransactions(@RequestHeader("token")String token,
-                                   @RequestHeader("idUser")int idUser) {
-
-        // check whether logged in user is authorized or not
-        UserEntity userByToken = userService.getUserByApiToken(token);
-        UserEntity userById = userService.getUserById(idUser);
-        if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
-        }
-
-        if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
-        }
-        // end of checking
-
-        List<TransaksiEntity> transactions = transaksiService.getTransaksiByIdUser(idUser);
-        List<ModelMap> models = new LinkedList<>();
-
-        for (TransaksiEntity t : transactions) {
-            ModelMap model = new ModelMap();
-            model.addAttribute("idTransaksi", t.getId());
-
-            BanksampahEntity bankResult = bankService.findById(t.getIdBank());
-            model.addAttribute("namaBank", bankResult.getNama());
-
-            model.addAttribute("harga", t.getHarga());
-
-            Double totalSampah = Double.parseDouble(t.getSampahBesi());
-            totalSampah += Double.parseDouble(t.getSampahBotol());
-            totalSampah += Double.parseDouble(t.getSampahKertas());
-            totalSampah += Double.parseDouble(t.getSampahPlastik());
-            model.addAttribute("totalSampah", totalSampah + " kg");
-            model.addAttribute("waktu", t.getWaktu());
-            models.add(model);
-        }
-        return new Wrapper(200, "Success", models);
-    }
-
-    /**
-     * Get user's transaction history with a specified id
-     * @param id the transaction id
-     * @param token the user's token, for authentication
-     * @param idUser the user's id, for authentication
-     * @return response body containing the data only if the user is authorized and the transaction exists
-     */
-    @RequestMapping(path = "/transaction/{id}", method = RequestMethod.GET)
-    public Wrapper getTransactionDetail(@PathVariable("id") int id,
-                                        @RequestHeader(value="token")String token,
-                                        @RequestHeader(value="idUser")int idUser){
-
-        // check whether logged in user is authorized or not
-        UserEntity userByToken = userService.getUserByApiToken(token);
-        UserEntity userById = userService.getUserById(idUser);
-
-        if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
-        }
-
-        if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
-        }
-
-        // check whether the transaction exists or not
-        TransaksiEntity transactionResult = transaksiService.getTransaksiById(id);
-
-        if (transactionResult == null) {
-            return new Wrapper(404,"Transaction not found", null);
-        }
-
-        // verify this user is truly the one who did this transaction
-        if (transactionResult.getIdUser() != userById.getId()) {
-            return new Wrapper(403,"Forbidden access", null);
-        }
-
-        // check whether this user has subscribed to this bank or not
-        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(transactionResult.getIdBank(), idUser);
-
-        if (langgananEntity == null) {
-            return new Wrapper(403,"You're not subscribed to this bank", null);
-        }
-        // end of checking
-
-        ModelMap model = new ModelMap();
-        model.addAttribute("idTransaksi", transactionResult.getId());
-
-        BanksampahEntity bankResult = bankService.findById(transactionResult.getIdBank());
-        model.addAttribute("namaBank", bankResult.getNama());
-
-        model.addAttribute("harga", transactionResult.getHarga());
-
-        Double totalSampah = Double.parseDouble(transactionResult.getSampahBesi());
-        totalSampah += Double.parseDouble(transactionResult.getSampahBotol());
-        totalSampah += Double.parseDouble(transactionResult.getSampahKertas());
-        totalSampah += Double.parseDouble(transactionResult.getSampahPlastik());
-        model.addAttribute("totalSampah", totalSampah + " kg");
-        model.addAttribute("waktu", transactionResult.getWaktu());
-
-        return new Wrapper(200,"Success", model);
-    }
-
-    /**
-     * Requesting new withdrawal in a specified bank, assuming 90 days has been passed
-     * since the user's first transaction
-     * @param token the user's token, for authentication
-     * @param idUser the user's id, for authentication
+     * Gets user's balance in a specified bank.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the bank exists or not.</li>
+     *     <li>Check whether the user has subscribed to this bank or not.</li>
+     * </ol>
+     * <br>
+     * User's balance is calculated through all transactions with status = 2 minus all withdrawal with status = 1.
+     * </p>
      * @param idBank the bank id
-     * @param jumlah the withdrawal amount
-     * @param waktu the withdrawal time, in java time millis
-     * @return response body containing the withdrawal data only if the user is authorized and the bank exists
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @return response body containing the data only if the user is authorized and the bank exists
      */
-    @RequestMapping(path = "/requestWithdraw", method = RequestMethod.POST)
-    public Wrapper requestWithdraw(@RequestHeader("token")String token,
-                                   @RequestHeader("idUser")int idUser,
-                                   @RequestParam("idBank")int idBank,
-                                   @RequestParam("jumlah")int jumlah,
-                                   @RequestParam("waktu")long waktu) {
+    @RequestMapping(path = "/bank/{id}/balance", method = RequestMethod.GET)
+    public Wrapper getBalanceInBank(@PathVariable("id") int idBank,
+                                     @RequestHeader(value="token")String token,
+                                     @RequestHeader(value="idUser")int idUser) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
+            return new Wrapper(404, "User not found", null);
         }
+
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
+            return new Wrapper(403, "Forbidden access", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
-
         if (bankSampah == null) {
-            return new Wrapper(404,"Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah not found", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
-
         if (langgananEntity == null) {
-            return new Wrapper(403,"You're not subscribed to this bank", null);
+            return new Wrapper(403, "You're not subscribed to this bank", null);
         }
+        // end of checking
 
-        // check whether this user has sufficient balance or not
-        Integer transactionsBalance = transaksiService.getSaldoByIdBank(idBank, idUser);
-        int withdrawalsBalance = 0;
+        Integer transactionsBalance = transaksiService.getUserBalanceByIdBank(idBank, idUser);
         List<WithdrawEntity> withdrawalsInThisBank = withdrawService.getWithdrawByIdUserAndIdBank(idUser, idBank);
+        int withdrawalsBalance = 0;
 
         for (WithdrawEntity w : withdrawalsInThisBank) {
             if (w.getStatus() == 2 ) {
                 withdrawalsBalance += w.getNominal();
             }
         }
-        int balance = transactionsBalance - withdrawalsBalance;
-
-        if (balance < jumlah) {
-            return new Wrapper(403,"Insufficient balance", null);
-        }
-        // end of checking
-
-        WithdrawEntity newWithdraw = new WithdrawEntity();
-
-        newWithdraw.setIdUser(idUser);
-        newWithdraw.setIdBank(idBank);
-        newWithdraw.setNominal(jumlah);
-        newWithdraw.setWaktu(waktu);
-
-        // insert into DB
-        newWithdraw = withdrawService.save(newWithdraw);
-
         ModelMap model = new ModelMap();
-        model.addAttribute("id", newWithdraw.getId());
         model.addAttribute("namaBank", bankSampah.getNama());
-        model.addAttribute("jumlah", newWithdraw.getNominal());
-        model.addAttribute("status", PickleUtil.generateStatus(newWithdraw.getStatus()));
-        model.addAttribute("waktu", newWithdraw.getWaktu());
+        model.addAttribute("balance", transactionsBalance - withdrawalsBalance);
 
-        return new Wrapper(201, "New withdraw request has been added", model);
+        return new Wrapper(200, "Success", model);
     }
 
     /**
-     * Condition must be satisfied so that user can request new withdrawal: 90 days has been passed
-     * since his/her first transaction. This method returns the number of day and
-     * a boolean true if more than 90 days has been passed, false otherwise.
-     * @param token the user's token, for authentication
-     * @param idUser the user's id, for authentication
-     * @param idBank the bank's id
-     * @return response body containing the number of days only if the user is authorized and the bank exists
-     */
-    @RequestMapping(path = "/requestWithdraw/check", method = RequestMethod.POST)
-    public Wrapper getDaysSubscribed(@RequestHeader("token") String token,
-                                   @RequestHeader("idUser") int idUser,
-                                   @RequestParam("idBank")int idBank) {
-
-        // check whether logged in user is authorized
-        UserEntity userByToken = userService.getUserByApiToken(token);
-        UserEntity userById = userService.getUserById(idUser);
-
-        if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
-        }
-
-        if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
-        }
-
-        // check whether the bank exists or not
-        BanksampahEntity bankSampah = bankService.findById(idBank);
-
-        if (bankSampah == null) {
-            return new Wrapper(404,"Bank sampah not found", null);
-        }
-
-        // check whether this user has subscribed to this bank or not
-        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
-
-        if (langgananEntity == null) {
-            return new Wrapper(403,"You're not subscribed to this bank", null);
-        }
-        // end of checking
-
-        long firstTransactionTime = langgananEntity.getTransaksiPertama();
-        long currentTime = System.currentTimeMillis();
-        double numberOfDays = PickleUtil.countDays(firstTransactionTime, currentTime);
-
-        ModelMap model = new ModelMap();
-
-        // firstTransactionTime = -1 means no transaction has been made, therefore can't withdraw
-        if (firstTransactionTime == -1) {
-            model.addAttribute("jumlahHari", -1);
-            model.addAttribute("boolean:", false);
-            return new Wrapper(200, "Success", model);
-        }
-        model.addAttribute("jumlahHari", numberOfDays);
-
-        if (numberOfDays >= 90) {
-            model.addAttribute("boolean:", true);
-            return new Wrapper(200, "Success", model);
-        } else {
-            model.addAttribute("boolean:", false);
-            return new Wrapper(200, "Success", model);
-        }
-    }
-
-    /**
-     * Get a specified bank's profile
+     * Gets a specified bank's profile.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the bank exists or not.</li>
+     * </ol>
+     * </p>
      * @param idBank the bank's id
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized and the bank exists
      */
-    @RequestMapping(path = "/bank/getDetail/{id}", method = RequestMethod.GET)
+    @RequestMapping(path = "/bank/{id}/details", method = RequestMethod.GET)
     public Wrapper getBankDetails(@PathVariable("id") int idBank,
-                                 @RequestHeader("token") String token,
-                                 @RequestHeader("idUser") int idUser) {
+                                  @RequestHeader("token") String token,
+                                  @RequestHeader("idUser") int idUser) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
+            return new Wrapper(404, "User not found", null);
         }
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
+            return new Wrapper(403, "Forbidden access", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
 
         if (bankSampah == null) {
-            return new Wrapper(404,"Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah not found", null);
         }
         // end of checking
 
@@ -669,7 +375,535 @@ public class UserController{
     }
 
     /**
-     * Subscribe to a specified bank
+     * Gets user's transactions history in a specified bank.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the bank exists or not.</li>
+     *     <li>Check whether the user has subscribed to this bank or not.</li>
+     * </ol>
+     * </p>
+     * @param idBank the bank's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @return response body containing the data only if the user is authorized and the bank exists
+     */
+    @RequestMapping(path = "/bank/{id}/transactions", method = RequestMethod.GET)
+    public Wrapper getAllTransactionsInBank(@PathVariable("id") int idBank,
+                                         @RequestHeader("token") String token,
+                                         @RequestHeader("idUser") int idUser) {
+
+        // check whether logged in user is authorized
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404, "User not found", null);
+        }
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403, "Forbidden access", null);
+        }
+
+        // check whether the bank exists or not
+        BanksampahEntity bankSampah = bankService.findById(idBank);
+
+        if (bankSampah == null) {
+            return new Wrapper(404, "Bank sampah not found", null);
+        }
+
+        // check whether this user has subscribed to this bank or not
+        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
+
+        if (langgananEntity == null) {
+            return new Wrapper(403, "You're not subscribed to this bank", null);
+        }
+        // end of checking
+
+        List<TransaksiEntity> transactionsResult = transaksiService.getTransaksiByIdbankAndIduser(idBank, idUser);
+        List<ModelMap> models = new LinkedList<>();
+
+        for (TransaksiEntity t : transactionsResult) {
+            ModelMap model = new ModelMap();
+            model.addAttribute("idTransaksi", t.getId());
+            model.addAttribute("waktu", t.getWaktu());
+            model.addAttribute("nominal", t.getHarga());
+            model.addAttribute("status", t.getStatus());
+            model.addAttribute("sampahPlastik", t.getSampahPlastik());
+            model.addAttribute("sampahBotol", t.getSampahBotol());
+            model.addAttribute("sampahBesi", t.getSampahBesi());
+            model.addAttribute("sampahKertas", t.getSampahKertas());
+            models.add(model);
+        }
+        return new Wrapper(200, "Success", models);
+    }
+
+    /**
+     * Gets user's withdrawal history in a specified bank.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the bank exists or not.</li>
+     *     <li>Check whether the user has subscribed to this bank or not.</li>
+     * </ol>
+     * </p>
+     * @param idBank the bank's id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @return response body containing the data only if the user is authorized and the bank exists
+     */
+    @RequestMapping(path = "/bank/{id}/withdrawals", method = RequestMethod.GET)
+    public Wrapper getAllWithdrawalsInBank(@PathVariable("id") int idBank,
+                                        @RequestHeader("token") String token,
+                                        @RequestHeader("idUser") int idUser) {
+
+        // check whether logged in user is authorized
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404, "User not found", null);
+        }
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403, "Forbidden access", null);
+        }
+
+        // check whether the bank exists or not
+        BanksampahEntity bankSampah = bankService.findById(idBank);
+
+        if (bankSampah == null) {
+            return new Wrapper(404, "Bank sampah not found", null);
+        }
+
+        // check whether this user has subscribed to this bank or not
+        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
+
+        if (langgananEntity == null) {
+            return new Wrapper(403, "You're not subscribed to this bank", null);
+        }
+        // end of checking
+
+        List<WithdrawEntity> withdrawalsResult = withdrawService.getWithdrawByIdUserAndIdBank(idUser, idBank);
+        List<ModelMap> models = new LinkedList<>();
+
+        for (WithdrawEntity w : withdrawalsResult) {
+            ModelMap model = new ModelMap();
+            model.addAttribute("idWithdraw", w.getId());
+            model.addAttribute("waktu", w.getWaktu());
+            model.addAttribute("nominal", w.getNominal());
+            model.addAttribute("status", w.getStatus());
+            models.add(model);
+        }
+        return new Wrapper(200, "Success", models);
+    }
+
+    /**
+     * Gets user's withdrawals history in all banks he/she subscribed to.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     * </ol>
+     * </p>
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @return response body containing the data only if the user is authorized
+     */
+    @RequestMapping(path = "/withdrawals", method = RequestMethod.GET)
+    public Wrapper getAllWithdrawals(@RequestHeader(value="token")String token,
+                                  @RequestHeader(value="idUser")int idUser) {
+
+        // check whether logged in user is authorized or not
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404, "User not found", null);
+        }
+
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403, "Forbidden access", null);
+        }
+        // end of checking
+
+        List<WithdrawEntity> withdrawals = withdrawService.getWithdrawByIdUser(idUser);
+        List<ModelMap> models = new LinkedList<>();
+
+        for (WithdrawEntity w : withdrawals) {
+            ModelMap model = new ModelMap();
+            model.addAttribute("idWithdraw", w.getId());
+
+            BanksampahEntity bankResult = bankService.findById(w.getIdBank());
+            model.addAttribute("namaBank", bankResult.getNama());
+
+            model.addAttribute("nominal", w.getNominal());
+            model.addAttribute("status", w.getStatus());
+            model.addAttribute("waktu", w.getWaktu());
+            models.add(model);
+        }
+        return new Wrapper(200, "Success", models);
+    }
+
+    /**
+     * Gets user's withdrawal history with a specified id.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the withdrawal exists or not.</li>
+     *     <li>Check whether the withdrawal was made in a bank he/she already subscribed to or not.</li>
+     *     <li>Verify logged in user is truly the one who did the withdrawal.</li>
+     * </ol>
+     * </p>
+     * @param id the withdrawal id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @return response body containing the data only if the user is authorized and the withdrawal exists
+     */
+    @RequestMapping(path = "/withdrawal/{id}", method = RequestMethod.GET)
+    public Wrapper getWithdrawalDetail(@PathVariable("id") int id,
+                                       @RequestHeader(value="token")String token,
+                                       @RequestHeader(value="idUser")int idUser) {
+
+        // check whether logged in user is authorized or not
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404, "User not found.", null);
+        }
+
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403, "Forbidden access.", null);
+        }
+
+        // check whether desired withdraw id exists or not
+        WithdrawEntity withdrawResult = withdrawService.getWithdrawById(id);
+        if (withdrawResult == null) {
+            return new Wrapper(404, "Withdrawal not found.", null);
+        }
+
+        // verify this user is truly the one who did this withdrawal
+        if(withdrawResult.getIdUser() != userById.getId()) {
+            return new Wrapper(403, "Forbidden access.", null);
+        }
+
+        // check whether this user has subscribed to this bank or not
+        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(withdrawResult.getIdBank(), idUser);
+
+        if (langgananEntity == null) {
+            return new Wrapper(403, "You're not subscribed to this bank", null);
+        }
+        // end of checking
+
+        ModelMap model = new ModelMap();
+        model.addAttribute("idWithdraw", withdrawResult.getId());
+
+        BanksampahEntity bankResult = bankService.findById(withdrawResult.getIdBank());
+        model.addAttribute("namaBank", bankResult.getNama());
+
+        model.addAttribute("jumlah", withdrawResult.getNominal());
+        model.addAttribute("status", withdrawResult.getStatus());
+        model.addAttribute("waktu", withdrawResult.getWaktu());
+        return new Wrapper(200, "Success", model);
+    }
+
+    /**
+     * Gets user's transactions history in all banks he/she subscribed to.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     * </ol>
+     * </p>
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @return response body containing the data only if the user is authorized
+     */
+    @RequestMapping(path = "/transaction", method = RequestMethod.GET)
+    public Wrapper getAllTransactions(@RequestHeader("token")String token,
+                                   @RequestHeader("idUser")int idUser) {
+
+        // check whether logged in user is authorized or not
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404, "User not found", null);
+        }
+
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403, "Forbidden access", null);
+        }
+        // end of checking
+
+        List<TransaksiEntity> transactions = transaksiService.getTransaksiByIdUser(idUser);
+        List<ModelMap> models = new LinkedList<>();
+
+        for (TransaksiEntity t : transactions) {
+            ModelMap model = new ModelMap();
+            model.addAttribute("idTransaksi", t.getId());
+
+            BanksampahEntity bankResult = bankService.findById(t.getIdBank());
+            model.addAttribute("namaBank", bankResult.getNama());
+
+            model.addAttribute("harga", t.getHarga());
+
+            Double totalSampah = Double.parseDouble(t.getSampahBesi());
+            totalSampah += Double.parseDouble(t.getSampahBotol());
+            totalSampah += Double.parseDouble(t.getSampahKertas());
+            totalSampah += Double.parseDouble(t.getSampahPlastik());
+            model.addAttribute("totalSampah", totalSampah + " kg");
+            model.addAttribute("waktu", t.getWaktu());
+            models.add(model);
+        }
+        return new Wrapper(200, "Success", models);
+    }
+
+    /**
+     * Gets user's transaction history with a specified id.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the transaction exists or not.</li>
+     *     <li>Check whether the transaction was made in a bank he/she already subscribed to or not.</li>
+     *     <li>Verify logged in user is truly the one who did the transaction.</li>
+     * </ol>
+     * </p>
+     * @param id the transaction id
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @return response body containing the data only if the user is authorized and the transaction exists
+     */
+    @RequestMapping(path = "/transaction/{id}", method = RequestMethod.GET)
+    public Wrapper getTransactionDetail(@PathVariable("id") int id,
+                                        @RequestHeader(value="token")String token,
+                                        @RequestHeader(value="idUser")int idUser){
+
+        // check whether logged in user is authorized or not
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404, "User not found", null);
+        }
+
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403, "Forbidden access", null);
+        }
+
+        // check whether the transaction exists or not
+        TransaksiEntity transactionResult = transaksiService.getTransaksiById(id);
+
+        if (transactionResult == null) {
+            return new Wrapper(404, "Transaction not found", null);
+        }
+
+        // verify this user is truly the one who did this transaction
+        if (transactionResult.getIdUser() != userById.getId()) {
+            return new Wrapper(403, "Forbidden access", null);
+        }
+
+        // check whether this user has subscribed to this bank or not
+        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(transactionResult.getIdBank(), idUser);
+
+        if (langgananEntity == null) {
+            return new Wrapper(403, "You're not subscribed to this bank", null);
+        }
+        // end of checking
+
+        ModelMap model = new ModelMap();
+        model.addAttribute("idTransaksi", transactionResult.getId());
+
+        BanksampahEntity bankResult = bankService.findById(transactionResult.getIdBank());
+        model.addAttribute("namaBank", bankResult.getNama());
+
+        model.addAttribute("harga", transactionResult.getHarga());
+
+        Double totalSampah = Double.parseDouble(transactionResult.getSampahBesi());
+        totalSampah += Double.parseDouble(transactionResult.getSampahBotol());
+        totalSampah += Double.parseDouble(transactionResult.getSampahKertas());
+        totalSampah += Double.parseDouble(transactionResult.getSampahPlastik());
+        model.addAttribute("totalSampah", totalSampah + " kg");
+        model.addAttribute("waktu", transactionResult.getWaktu());
+
+        return new Wrapper(200,"Success", model);
+    }
+
+    /**
+     * Requests new withdrawal in a specified bank.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the bank exists or not.</li>
+     *     <li>Check whether logged in user has subscribed to the bank or not.</li>
+     *     <li>Check whether logged in user has sufficient balance or not.</li>
+     * </ol>
+     * <br>
+     * Assuming 90 days has been passed since the user's first transaction; there's another method to verify this.
+     * </p>
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @param idBank the bank id
+     * @param jumlah the withdrawal amount
+     * @param waktu the withdrawal time, in java time millis
+     * @return response body containing the withdrawal data only if the user is authorized and the bank exists
+     */
+    @RequestMapping(path = "/requestWithdraw", method = RequestMethod.POST)
+    public Wrapper requestWithdraw(@RequestHeader("token")String token,
+                                   @RequestHeader("idUser")int idUser,
+                                   @RequestParam("idBank")int idBank,
+                                   @RequestParam("jumlah")int jumlah,
+                                   @RequestParam("waktu")long waktu) {
+
+        // check whether logged in user is authorized
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404, "User not found", null);
+        }
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403, "Forbidden access", null);
+        }
+
+        // check whether the bank exists or not
+        BanksampahEntity bankSampah = bankService.findById(idBank);
+
+        if (bankSampah == null) {
+            return new Wrapper(404, "Bank sampah not found", null);
+        }
+
+        // check whether this user has subscribed to this bank or not
+        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
+
+        if (langgananEntity == null) {
+            return new Wrapper(403, "You're not subscribed to this bank", null);
+        }
+
+        // check whether this user has sufficient balance or not
+        Integer transactionsBalance = transaksiService.getUserBalanceByIdBank(idBank, idUser);
+        int withdrawalsBalance = 0;
+        List<WithdrawEntity> withdrawalsInThisBank = withdrawService.getWithdrawByIdUserAndIdBank(idUser, idBank);
+
+        for (WithdrawEntity w : withdrawalsInThisBank) {
+            if (w.getStatus() == 2 ) {
+                withdrawalsBalance += w.getNominal();
+            }
+        }
+        int balance = transactionsBalance - withdrawalsBalance;
+
+        if (balance < jumlah) {
+            return new Wrapper(403, "Insufficient balance", null);
+        }
+        // end of checking
+
+        WithdrawEntity newWithdraw = new WithdrawEntity();
+
+        newWithdraw.setIdUser(idUser);
+        newWithdraw.setIdBank(idBank);
+        newWithdraw.setNominal(jumlah);
+        newWithdraw.setWaktu(waktu);
+
+        // insert into DB
+        newWithdraw = withdrawService.save(newWithdraw);
+
+        ModelMap model = new ModelMap();
+        model.addAttribute("id", newWithdraw.getId());
+        model.addAttribute("namaBank", bankSampah.getNama());
+        model.addAttribute("jumlah", newWithdraw.getNominal());
+        model.addAttribute("status", PickleUtil.generateStatus(newWithdraw.getStatus()));
+        model.addAttribute("waktu", newWithdraw.getWaktu());
+
+        return new Wrapper(201, "New withdraw request has been added", model);
+    }
+
+    /**
+     * Checks withdraw request availability.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the bank exists or not.</li>
+     *     <li>Check whether logged in user has subscribed to the bank or not.</li>
+     * </ol>
+     * <br>
+     * Condition must be satisfied so that user can request new withdrawal: 90 days has been passed
+     * since his/her first transaction. This method returns the number of day and
+     * a boolean true if more than 90 days has been passed, false otherwise.
+     * </p>
+     * @param token the user's token, for authentication
+     * @param idUser the user's id, for authentication
+     * @param idBank the bank's id
+     * @return response body containing the number of days only if the user is authorized and the bank exists
+     */
+    @RequestMapping(path = "/requestWithdraw/check", method = RequestMethod.POST)
+    public Wrapper getDaysSubscribed(@RequestHeader("token") String token,
+                                   @RequestHeader("idUser") int idUser,
+                                   @RequestParam("idBank")int idBank) {
+
+        // check whether logged in user is authorized
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404, "User not found", null);
+        }
+
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403, "Forbidden access", null);
+        }
+
+        // check whether the bank exists or not
+        BanksampahEntity bankSampah = bankService.findById(idBank);
+
+        if (bankSampah == null) {
+            return new Wrapper(404, "Bank sampah not found", null);
+        }
+
+        // check whether this user has subscribed to this bank or not
+        LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
+
+        if (langgananEntity == null) {
+            return new Wrapper(403, "You're not subscribed to this bank", null);
+        }
+        // end of checking
+
+        long firstTransactionTime = langgananEntity.getTransaksiPertama();
+        long currentTime = System.currentTimeMillis();
+        double numberOfDays = PickleUtil.countDays(firstTransactionTime, currentTime);
+
+        ModelMap model = new ModelMap();
+
+        // firstTransactionTime = -1 means no transaction has been made, therefore can'w withdraw
+        if (firstTransactionTime == -1) {
+            model.addAttribute("jumlahHari", -1);
+            model.addAttribute("boolean:", false);
+            return new Wrapper(200, "Success", model);
+        }
+        model.addAttribute("jumlahHari", numberOfDays);
+
+        if (numberOfDays >= 90) {
+            model.addAttribute("boolean:", true);
+            return new Wrapper(200, "Success", model);
+        } else {
+            model.addAttribute("boolean:", false);
+            return new Wrapper(200, "Success", model);
+        }
+    }
+
+    /**
+     * Subscribes to a specified bank.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the bank exists or not.</li>
+     *     <li>Check whether logged in user has subscribed to the bank or not.</li>
+     * </ol>
+     * </p>
      * @param idBank the bank's id
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
@@ -684,25 +918,25 @@ public class UserController{
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
         if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
+            return new Wrapper(404, "User not found", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
+            return new Wrapper(403, "Forbidden access", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
 
         if (bankSampah == null) {
-            return new Wrapper(404,"Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah not found", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
 
         if (langgananEntity != null) {
-            return new Wrapper(400,"You're already subscribed to this bank", null);
+            return new Wrapper(400, "You're already subscribed to this bank", null);
         }
         // end of checking
 
@@ -725,14 +959,22 @@ public class UserController{
     }
 
     /**
-     * Search banks by location or bank name
+     * Searches banks with specified queries.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     * </ol>
+     * <br>
+     * The query may contain the bank name or the bank location name or both.
+     * </p>
      * @param query the query, may containing location or bank name, encoded in UTF-8 encoding scheme
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
      * @return response body containing search results only if the user is authorized
      */
     @RequestMapping(path = "/search", method = RequestMethod.POST)
-    public Wrapper searchByLocation(@RequestParam("query") String query,
+    public Wrapper search(@RequestParam("query") String query,
                                     @RequestHeader("token") String token,
                                     @RequestHeader("idUser") int idUser) {
 
@@ -741,11 +983,11 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
+            return new Wrapper(404, "User not found", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
+            return new Wrapper(403, "Forbidden access", null);
         }
 
         try {
@@ -766,11 +1008,21 @@ public class UserController{
             model.addAttribute("locationLng", b.getLocationLng());
             models.add(model);
         }
-        return new Wrapper(200, "success", models);
+        return new Wrapper(200, "Success", models);
     }
 
     /**
-     * Update transaction status, possible actions: accept or reject
+     * Updates transaction status.
+     *
+     * <p>Authentication phase:
+     * <ol>
+     *     <li>Check whether logged in user is authorized.</li>
+     *     <li>Check whether the bank exists or not.</li>
+     *     <li>Check whether the transaction was made in a bank he/she already subscribed to or not.</li>
+     * </ol>
+     * <br>
+     * Possible update actions: accept or reject.
+     * </p>
      * @param idTransaksi the transaction's id
      * @param status the status to be applied. 1 for accept, -1 for reject
      * @param token the user's token, for authentication
@@ -788,30 +1040,30 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404,"User not found", null);
+            return new Wrapper(404, "User not found", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403,"Forbidden access", null);
+            return new Wrapper(403, "Forbidden access", null);
         }
 
         // check whether the transaction exists or not
         TransaksiEntity transaction = transaksiService.getTransaksiById(idTransaksi);
 
         if (transaction == null) {
-            return new Wrapper(404,"Transaction not found", null);
+            return new Wrapper(404, "Transaction not found", null);
         }
 
         // check whether the transaction was made in a bank he/she already subscribed to or not
         LanggananEntity subscription = langgananService.isSubscribedToThisBank(transaction.getIdBank(), idUser);
 
         if (subscription == null) {
-            return new Wrapper(403,"You're not subscribed to this bank", null);
+            return new Wrapper(403, "You're not subscribed to this bank", null);
         }
 
         // verify this user is truly the one who did this transaction
         if (transaction.getIdUser() != userById.getId()) {
-            return new Wrapper(403,"Forbidden access", null);
+            return new Wrapper(403, "Forbidden access", null);
         }
         // end of checking
 
