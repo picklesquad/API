@@ -42,11 +42,11 @@ public class UserController{
     /**
      * Checks whether the user has completed his/her data or not.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether the email given exists or not</li>
      * </ol>
-     * </p>
+     *
      * @param email the user's email
      * @return response body containing true if the user has completed his/her data, otherwise false
      */
@@ -72,11 +72,11 @@ public class UserController{
     /**
      * Login for registered user.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether the email given exists or not.</li>
      * </ol>
-     * </p>
+     *
      * @param email the user's email
      * @return response body containing his/her profile
      */
@@ -112,18 +112,19 @@ public class UserController{
     }
 
     /**
-     * Login for new user who just registered.
+     * Register and login for new user who just registered.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether the phone number has been registered or not.</li>
      *     <li>Check whether the email has been registered or not.</li>
      * </ol>
-     * </p>
+     *
      * @param nama the user's name
      * @param email the user's email
      * @param phoneNumber the user's phone number
      * @param dob the user's date of birth
+     * @param facebookPhoto the user's facebook photo
      * @param gender the user's gender
      * @param alamat the user's address
      * @param fbToken the user's facebook token
@@ -195,13 +196,12 @@ public class UserController{
     /**
      * Gets user's balance in all bank he/she subscribes to.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      * </ol>
-     * <br>
-     * User's balance is calculated through all transactions with status = 2 minus all withdrawal with status = 1.
-     * </p>
+     * <p>User's balance is calculated through all transactions with status = 2 minus all withdrawal with status = 1.</p>
+     *
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized
@@ -250,15 +250,14 @@ public class UserController{
     /**
      * Gets user's balance in a specified bank.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the bank exists or not.</li>
      *     <li>Check whether the user has subscribed to this bank or not.</li>
      * </ol>
-     * <br>
-     * User's balance is calculated through all transactions with status = 2 minus all withdrawal with status = 1.
-     * </p>
+     * <p>User's balance is calculated through all transactions with status = 2 minus all withdrawal with status = 1.</p>
+     *
      * @param idBank the bank id
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
@@ -313,12 +312,12 @@ public class UserController{
     /**
      * Gets a specified bank's profile.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the bank exists or not.</li>
      * </ol>
-     * </p>
+     *
      * @param idBank the bank's id
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
@@ -377,13 +376,13 @@ public class UserController{
     /**
      * Gets user's transactions history in a specified bank.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the bank exists or not.</li>
      *     <li>Check whether the user has subscribed to this bank or not.</li>
      * </ol>
-     * </p>
+     *
      * @param idBank the bank's id
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
@@ -441,13 +440,13 @@ public class UserController{
     /**
      * Gets user's withdrawal history in a specified bank.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the bank exists or not.</li>
      *     <li>Check whether the user has subscribed to this bank or not.</li>
      * </ol>
-     * </p>
+     *
      * @param idBank the bank's id
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
@@ -501,11 +500,11 @@ public class UserController{
     /**
      * Gets user's withdrawals history in all banks he/she subscribed to.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      * </ol>
-     * </p>
+     *
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized
@@ -548,14 +547,14 @@ public class UserController{
     /**
      * Gets user's withdrawal history with a specified id.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the withdrawal exists or not.</li>
      *     <li>Check whether the withdrawal was made in a bank he/she already subscribed to or not.</li>
      *     <li>Verify logged in user is truly the one who did the withdrawal.</li>
      * </ol>
-     * </p>
+     *
      * @param id the withdrawal id
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
@@ -612,11 +611,11 @@ public class UserController{
     /**
      * Gets user's transactions history in all banks he/she subscribed to.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      * </ol>
-     * </p>
+     *
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized
@@ -663,14 +662,14 @@ public class UserController{
     /**
      * Gets user's transaction history with a specified id.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the transaction exists or not.</li>
      *     <li>Check whether the transaction was made in a bank he/she already subscribed to or not.</li>
      *     <li>Verify logged in user is truly the one who did the transaction.</li>
      * </ol>
-     * </p>
+     *
      * @param id the transaction id
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
@@ -734,7 +733,7 @@ public class UserController{
     /**
      * Requests new withdrawal in a specified bank.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the bank exists or not.</li>
@@ -742,8 +741,8 @@ public class UserController{
      *     <li>Check whether logged in user has sufficient balance or not.</li>
      * </ol>
      * <br>
-     * Assuming 90 days has been passed since the user's first transaction; there's another method to verify this.
-     * </p>
+     * <p>Assuming 90 days has been passed since the user's first transaction; there's another method to verify this.</p>
+     *
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
      * @param idBank the bank id
@@ -823,13 +822,13 @@ public class UserController{
     /**
      * Checks withdraw request availability.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the bank exists or not.</li>
      *     <li>Check whether logged in user has subscribed to the bank or not.</li>
      * </ol>
-     * <br>
+     * <p>
      * Condition must be satisfied so that user can request new withdrawal: 90 days has been passed
      * since his/her first transaction. This method returns the number of day and
      * a boolean true if more than 90 days has been passed, false otherwise.
@@ -897,13 +896,13 @@ public class UserController{
     /**
      * Subscribes to a specified bank.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the bank exists or not.</li>
      *     <li>Check whether logged in user has subscribed to the bank or not.</li>
      * </ol>
-     * </p>
+     *
      * @param idBank the bank's id
      * @param token the user's token, for authentication
      * @param idUser the user's id, for authentication
@@ -961,11 +960,11 @@ public class UserController{
     /**
      * Searches banks with specified queries.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      * </ol>
-     * <br>
+     * <p>
      * The query may contain the bank name or the bank location name or both.
      * </p>
      * @param query the query, may containing location or bank name, encoded in UTF-8 encoding scheme
@@ -1014,13 +1013,13 @@ public class UserController{
     /**
      * Updates transaction status.
      *
-     * <p>Authentication phase:
+     * <p>Authentication phase:</p>
      * <ol>
      *     <li>Check whether logged in user is authorized.</li>
      *     <li>Check whether the bank exists or not.</li>
      *     <li>Check whether the transaction was made in a bank he/she already subscribed to or not.</li>
      * </ol>
-     * <br>
+     * <p>
      * Possible update actions: accept or reject.
      * </p>
      * @param idTransaksi the transaction's id

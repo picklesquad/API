@@ -56,7 +56,7 @@ public class LanggananEntity {
     }
 
     /**
-     * Returns the time millis represents the date when the subscription is applied.
+     * Returns the time millis representing the date when the subscription is applied.
      * @return the {@code langgananSejak} property
      */
     @Basic
@@ -66,16 +66,16 @@ public class LanggananEntity {
     }
 
     /**
-     * Sets the time millis represents the date when the subscription is applied with the
-     * specified {@code langgananSejak}.
-     * @param langgananSejak the {@code langgananSejak} for this langganan
+     * Sets the time millis representing the date when the subscription is applied with the
+     * specified {@code time}.
+     * @param time the time millis representing the date when the subscription is applied
      */
-    public void setLanggananSejak(long langgananSejak) {
-        this.langgananSejak = langgananSejak;
+    public void setLanggananSejak(long time) {
+        this.langgananSejak = time;
     }
 
     /**
-     * Returns the time millis represents the date when the user makes his/her first transaction.
+     * Returns the time millis representing the date when the user makes his/her first transaction.
      * @return the {@code transaksiPertama} property
      */
     @Basic
@@ -85,12 +85,12 @@ public class LanggananEntity {
     }
 
     /**
-     * Sets the time millis represents the date when the user makes his/her first transaction with the
+     * Sets the time millis representing the date when the user makes his/her first transaction with the
      * specified {@code transaksiPertama}.
-     * @param transaksiPertama the {@code transaksiPertama} for this langganan
+     * @param time the time millis representing the date when the user makes his/her first transaction
      */
-    public void setTransaksiPertama(long transaksiPertama) {
-        this.transaksiPertama = transaksiPertama;
+    public void setTransaksiPertama(long time) {
+        this.transaksiPertama = time;
     }
 
     @Override

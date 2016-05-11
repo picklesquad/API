@@ -28,6 +28,10 @@ public class UserEntity {
     private int isComplete;
     private long memberSince;
 
+    /**
+     * Returns the id of this user.
+     * @return the {@code id} property
+     */
     @Id
     @GenericGenerator(name="generator" , strategy="increment")
     @GeneratedValue(generator="generator")
@@ -36,116 +40,211 @@ public class UserEntity {
         return id;
     }
 
+    /**
+     * Sets the id of this user with the specified {@code id}.
+     * @param id the {@code id} for this user
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Returns the name of this user.
+     * @return the {@code nama} property
+     */
     @Basic
     @Column(name = "nama")
     public String getNama() {
         return nama;
     }
 
-    public void setNama(String nama) {
-        this.nama = nama;
+    /**
+     * Sets the name of this user with the specified {@code name}.
+     * @param name the {@code nama} for this user
+     */
+    public void setNama(String name) {
+        this.nama = name;
     }
 
+    /**
+     * Returns the email of this user.
+     * @return the {@code email} property
+     */
     @Basic
     @Column(name = "email")
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Sets the email of this user with the specified {@code email}.
+     * @param email the {@code email} for this user
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * Returns the phone number of this user.
+     * @return the {@code phoneNumber} property
+     */
     @Basic
     @Column(name = "phonenumber")
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    /**
+     * Sets the phone number of this user with the specified {@code phoneNumber}.
+     * @param phoneNumber the {@code phoneNumber} for this user
+     */
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
+    /**
+     * Returns the photo URL of this user.
+     * @return the {@code photo} property
+     */
     @Basic
     @Column(name = "photo")
     public String getPhoto() {
         return photo;
     }
 
+    /**
+     * Sets the photo URL of this user with the specified {@code photo}.
+     * @param photo the {@code photo} URL for this user
+     */
     public void setPhoto(String photo) {
         this.photo = photo;
     }
 
+    /**
+     * Returns the address of this user.
+     * @return the {@code alamat} property
+     */
     @Basic
     @Column(name = "alamat")
     public String getAlamat() {
         return alamat;
     }
 
-    public void setAlamat(String alamat) {
-        this.alamat = alamat;
+    /**
+     * Sets the address of this user with the specified {@code address}.
+     * @param address the {@code alamat} for this user
+     */
+    public void setAlamat(String address) {
+        this.alamat = address;
     }
 
+    /**
+     * Returns the experiences of this user.
+     * @return the {@code exp} property
+     */
     @Basic
     @Column(name = "exp")
     public int getExp() {
         return exp;
     }
 
+    /**
+     * Sets the experiences of this user with the specified {@code exp}.
+     * @param exp the {@code exp} for this user
+     */
     public void setExp(int exp) {
         this.exp = exp;
     }
 
+    /**
+     * Returns the balance of this user.
+     * @return the {@code saldo} property
+     */
     @Basic
     @Column(name = "saldo")
     public int getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(int saldo) {
-        this.saldo = saldo;
+    /**
+     * Sets the balance of this user with the specified {@code balance}.
+     * @param balance the {@code saldo} for this user
+     */
+    public void setSaldo(int balance) {
+        this.saldo = balance;
     }
 
+    /**
+     * Returns the API token of this user.
+     * @return the {@code apiToken} property
+     */
     @Basic
     @Column(name = "apitoken")
     public String getApiToken() {
         return apiToken;
     }
 
-    public void setApiToken(String apiToken) {
-        this.apiToken = apiToken;
+    /**
+     * Sets the API token of this user with the specified {@code token}.
+     * @param token the {@code apiToken} for this user
+     */
+    public void setApiToken(String token) {
+        this.apiToken = token;
     }
 
+    /**
+     * Returns the Facebook token of this user.
+     * @return the {@code fbToken} property
+     */
     @Basic
     @Column(name = "fbtoken")
     public String getFbToken() {
         return fbToken;
     }
 
-    public void setFbToken(String fbToken) {
-        this.fbToken = fbToken;
+    /**
+     * Sets the Facebook token of this user with the specified {@code token}.
+     * @param token the {@code fbToken} for this user
+     */
+    public void setFbToken(String token) {
+        this.fbToken = token;
     }
 
+    /**
+     * Returns an integer representing whether this user has completed his/her data or not.
+     * <p>1 means the data is complete, 0 means no.</p>
+     * @return the {@code isComplete} property
+     */
     @Basic
     @Column(name = "iscomplete")
     public int getIsComplete() {
         return isComplete;
     }
 
+    /**
+     * Sets the integer representing whether this user has completed his/her data or not with the specified {@code
+     * isComplete}.
+     * <p>1 means the data is complete, 0 means no.</p>
+     * @param isComplete the integer representing completion of this user
+     */
     public void setIsComplete(int isComplete) {
         this.isComplete = isComplete;
     }
 
+    /**
+     * Returns the time millis representing the registration date of this user.
+     * @return the {@code memberSince} property
+     */
     @Basic
     @Column(name = "membersince")
     public long getMemberSince() {
         return memberSince;
     }
 
+    /**
+     * Sets the time millis representing the registration date of this user.
+     * @param memberSince the time millis representing registration date of this user
+     */
     public void setMemberSince(long memberSince) { this.memberSince = memberSince; }
 
     @Override

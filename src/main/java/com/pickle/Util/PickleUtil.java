@@ -11,7 +11,8 @@ import java.util.Random;
 
 /**
  * Common utilities used across all classes
- * Created by Syukri Mullia Adil P on 4/25/2016.
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 public class PickleUtil {
 

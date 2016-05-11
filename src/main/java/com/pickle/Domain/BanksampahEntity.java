@@ -84,7 +84,7 @@ public class BanksampahEntity {
     }
 
     /**
-     * Returns the {@code narahubung} of this bank.
+     * Returns the contact person ({@code narahubung}) of this bank.
      * @return the {@code narahubung} property
      */
     @Basic
@@ -94,11 +94,11 @@ public class BanksampahEntity {
     }
 
     /**
-     * Sets the bank {@code narahubung} with the specified {@code narahubung}.
-     * @param narahubung the {@code narahubung} for this bank
+     * Sets the bank contact person with the specified {@code contactPerson}.
+     * @param contactPerson the contact person ({@code narahubung}) for this bank
      */
-    public void setNarahubung(String narahubung) {
-        this.narahubung = narahubung;
+    public void setNarahubung(String contactPerson) {
+        this.narahubung = contactPerson;
     }
 
     /**

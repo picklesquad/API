@@ -9,7 +9,8 @@ import java.util.List;
 
 /**
  * Services provided by BankRepository
- * Created by andrikurniawan.id@gmail.com on 3/17/2016.
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 @Service
 public class BankService {

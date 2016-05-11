@@ -9,7 +9,8 @@ import java.util.List;
 
 /**
  * Services provided by TransaksiRepository
- * Created by Syukri Mullia Adil P on 4/17/2016.
+ * @author Andri Kurniawan
+ * @author Syukri Mullia Adil P.
  */
 @Service
 public class WithdrawService {
