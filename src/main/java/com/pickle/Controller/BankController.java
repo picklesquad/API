@@ -81,6 +81,7 @@ public class BankController {
         ModelMap model = new ModelMap();
         model.addAttribute("id", user.getId());
         model.addAttribute("nama", user.getNama());
+        model.addAttribute("email", user.getEmail());
         model.addAttribute("phoneNumber", user.getPhoneNumber());
         model.addAttribute("alamat", user.getAlamat());
         model.addAttribute("saldo", user.getSaldo());
@@ -104,13 +105,12 @@ public class BankController {
 
         for (LanggananEntity n : langganan) {
             ModelMap model = new ModelMap();
-
             UserEntity user = userService.getUserById(n.getIduser());
             model.addAttribute("id", user.getId());
             model.addAttribute("nama", user.getNama());
             model.addAttribute("photo", user.getPhoto());
             int saldo = transaksiService.getUserBalanceByIdBank(idbank, user.getId());
-            model.addAttribute("saldo", saldo);
+            model.addAttribute("memberSince", n.getLanggananSejak());
             result.add(model);
         }
 
@@ -309,6 +309,7 @@ public class BankController {
                 model.addAttribute("nama", user.getNama());
                 model.addAttribute("waktu", w.getWaktu());
                 model.addAttribute("harga", w.getNominal());
+                model.addAttribute("status", w.getStatus());
                 result.add(model);
             }
         }
