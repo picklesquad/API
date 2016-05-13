@@ -163,17 +163,18 @@ public class BankController {
                                   @RequestParam("logam") String logam,
                                   @RequestParam("kertas") String kertas,
                                   @RequestParam("botol") String botol,
-                                  @RequestParam("totalHarga") int totalHarga,
+                                  @RequestParam("totalHarga") String totalHarga,
                                   @RequestHeader("idBank")int idBank) {
 
         TransaksiEntity transaksi = new TransaksiEntity();
         UserEntity user = userService.getUserByPhoneNumber(phoneNumber);
         if(user == null) return new Wrapper(200,"Nasabah tidak ditemukan", null);
         int iduser = user.getId();
+        int harga = Integer.parseInt(totalHarga);
         transaksi.setIdUser(iduser);
         transaksi.setIdBank(idBank);
         transaksi.setWaktu(PickleUtil.generateCurrentTime());
-        transaksi.setHarga(totalHarga);
+        transaksi.setHarga(harga);
         transaksi.setHarga(0);
         transaksi.setRating(null);
         transaksi.setSampahPlastik(plastik);
