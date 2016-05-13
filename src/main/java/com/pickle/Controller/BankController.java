@@ -175,7 +175,6 @@ public class BankController {
         transaksi.setIdBank(idBank);
         transaksi.setWaktu(PickleUtil.generateCurrentTime());
         transaksi.setHarga(harga);
-        transaksi.setHarga(0);
         transaksi.setRating(null);
         transaksi.setSampahPlastik(plastik);
         transaksi.setSampahBesi(logam);
