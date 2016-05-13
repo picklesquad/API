@@ -26,6 +26,9 @@ public class LanggananService {
         return langgananRepository.findByIdbank(idBank);
     }
 
+    public List<LanggananEntity> getLanggananByIdUser(int idUser) {
+        return langgananRepository.findByIduser(idUser);
+    }
     public LanggananEntity isSubscribedToThisBank(int idBank, int idUser) {
         return langgananRepository.findByIdbankAndIduser(idBank, idUser);
     }

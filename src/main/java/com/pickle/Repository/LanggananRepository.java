@@ -17,6 +17,7 @@ import java.util.List;
 public interface LanggananRepository extends CrudRepository<LanggananEntity, Integer>{
 
     List<LanggananEntity> findByIdbank(int idbank);
+    List<LanggananEntity> findByIduser(int iduser);
     LanggananEntity findByIdbankAndIduser(int idbank, int iduser);
 
     @Query(value = "SELECT count(DISTINCT iduser) as jumlahLangganan from langganan where idbank = :idbank",

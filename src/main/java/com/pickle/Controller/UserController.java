@@ -90,8 +90,8 @@ public class UserController{
         }
         // end of checking
 
-//        userResult.setApiToken(PickleUtil.generateApiToken(userResult.getPhoneNumber()));
-//        userResult = userService.save(userResult);
+        userResult.setApiToken(PickleUtil.generateApiToken(userResult.getPhoneNumber()));
+        userResult = userService.save(userResult);
 
         ModelMap model = new ModelMap();
         model.addAttribute("id", userResult.getId());
@@ -132,13 +132,13 @@ public class UserController{
      */
     @RequestMapping(path = "/login/addUser", method = RequestMethod.POST)
     public Wrapper register(@RequestParam("nama")String nama,
-                           @RequestParam("email")String email,
-                           @RequestParam("phoneNumber")String phoneNumber,
-                           @RequestParam("dateOfBirth")String dob,
-                           @RequestParam("facebookPhoto")String facebookPhoto,
-                           @RequestParam("gender")String gender,
-                           @RequestParam("alamat")String alamat,
-                           @RequestParam("fbToken")String fbToken) {
+                            @RequestParam("email")String email,
+                            @RequestParam("phoneNumber")String phoneNumber,
+                            @RequestParam("dateOfBirth")String dob,
+                            @RequestParam("facebookPhoto")String facebookPhoto,
+                            @RequestParam("gender")String gender,
+                            @RequestParam("alamat")String alamat,
+                            @RequestParam("fbToken")String fbToken) {
 
         // check whether the phone number has been registered or not
         UserEntity test = userService.getUserByPhoneNumber(phoneNumber);
@@ -177,7 +177,7 @@ public class UserController{
 
         ModelMap model = new ModelMap();
         model.addAttribute("id", newUser.getId());
-//        model.addAttribute("apiToken", newUser.getApiToken());
+        model.addAttribute("apiToken", newUser.getApiToken());
         model.addAttribute("nama", newUser.getNama());
         model.addAttribute("photo", newUser.getPhoto());
         model.addAttribute("level", "newbie");
@@ -206,9 +206,9 @@ public class UserController{
      * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized
      */
-    @RequestMapping(path = "/balance", method = RequestMethod.GET)
+    @RequestMapping(path = "/balances", method = RequestMethod.GET)
     public Wrapper getAllBalance(@RequestHeader(value="token")String token,
-                                     @RequestHeader(value="idUser")int idUser) {
+                                 @RequestHeader(value="idUser")int idUser) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -223,24 +223,34 @@ public class UserController{
         }
         // end of checking
 
-        List<Object[]> result = transaksiService.getBalancePerBank(idUser);
+        List<LanggananEntity> subscribedBank = langgananService.getLanggananByIdUser(userById.getId());
         List<ModelMap> models = new LinkedList<>();
 
-        for (Object[] records : result) {
+        for (LanggananEntity l : subscribedBank) {
             ModelMap model = new ModelMap();
 
-            BanksampahEntity thisBank = bankService.findById((int) records[0]);
-            BigDecimal transcationsBalance = (BigDecimal) records[1];
+            BanksampahEntity thisBank = bankService.findById(l.getIdbank());
+            List<TransaksiEntity> transactionsList = transaksiService.getTransaksiByIdbankAndIduser(thisBank.getId(),
+                    idUser);
+            List<WithdrawEntity> withdrawalList = withdrawService.getWithdrawByIdUserAndIdBank(idUser, thisBank.getId
+                    ());
 
-            List<WithdrawEntity> withdrawalsInThisBank = withdrawService.getWithdrawByIdUserAndIdBank(idUser, thisBank.getId());
-            int withdrawalsBalance = 0;
+            long transactionsBalance = 0;
+            for (TransaksiEntity t : transactionsList) {
+                if (t.getStatus() == 1) {
+                    transactionsBalance += t.getHarga();
+                }
+            }
 
-            for (WithdrawEntity w : withdrawalsInThisBank) {
-                withdrawalsBalance += w.getNominal();
+            long withdrawalsBalance = 0;
+            for (WithdrawEntity w : withdrawalList) {
+                if (w.getStatus() == 2) {
+                    withdrawalsBalance += w.getNominal();
+                }
             }
             model.addAttribute("idBank", thisBank.getId());
             model.addAttribute("namaBank", thisBank.getNama());
-            model.addAttribute("balance", transcationsBalance.subtract(new BigDecimal(withdrawalsBalance)));
+            model.addAttribute("balance", transactionsBalance - withdrawalsBalance);
 
             models.add(model);
         }
@@ -265,8 +275,8 @@ public class UserController{
      */
     @RequestMapping(path = "/bank/{id}/balance", method = RequestMethod.GET)
     public Wrapper getBalanceInBank(@PathVariable("id") int idBank,
-                                     @RequestHeader(value="token")String token,
-                                     @RequestHeader(value="idUser")int idUser) {
+                                    @RequestHeader(value="token")String token,
+                                    @RequestHeader(value="idUser")int idUser) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -293,16 +303,24 @@ public class UserController{
         }
         // end of checking
 
-        Integer transactionsBalance = transaksiService.getUserBalanceByIdBank(idBank, idUser);
-        List<WithdrawEntity> withdrawalsInThisBank = withdrawService.getWithdrawByIdUserAndIdBank(idUser, idBank);
-        int withdrawalsBalance = 0;
+        List<TransaksiEntity> transactionsList = transaksiService.getTransaksiByIdbankAndIduser(idBank, idUser);
+        List<WithdrawEntity> withdrawalList = withdrawService.getWithdrawByIdUserAndIdBank(idUser, idBank);
 
-        for (WithdrawEntity w : withdrawalsInThisBank) {
-            if (w.getStatus() == 2 ) {
+        long transactionsBalance = 0;
+        for (TransaksiEntity t : transactionsList) {
+            if (t.getStatus() == 1) {
+                transactionsBalance += t.getHarga();
+            }
+        }
+
+        long withdrawalsBalance = 0;
+        for (WithdrawEntity w : withdrawalList) {
+            if (w.getStatus() == 2) {
                 withdrawalsBalance += w.getNominal();
             }
         }
         ModelMap model = new ModelMap();
+        model.addAttribute("idBank", bankSampah.getId());
         model.addAttribute("namaBank", bankSampah.getNama());
         model.addAttribute("balance", transactionsBalance - withdrawalsBalance);
 
@@ -390,8 +408,8 @@ public class UserController{
      */
     @RequestMapping(path = "/bank/{id}/transactions", method = RequestMethod.GET)
     public Wrapper getAllTransactionsInBank(@PathVariable("id") int idBank,
-                                         @RequestHeader("token") String token,
-                                         @RequestHeader("idUser") int idUser) {
+                                            @RequestHeader("token") String token,
+                                            @RequestHeader("idUser") int idUser) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -425,6 +443,7 @@ public class UserController{
         for (TransaksiEntity t : transactionsResult) {
             ModelMap model = new ModelMap();
             model.addAttribute("idTransaksi", t.getId());
+            model.addAttribute("namaBank", bankSampah.getNama());
             model.addAttribute("waktu", t.getWaktu());
             model.addAttribute("nominal", t.getHarga());
             model.addAttribute("status", t.getStatus());
@@ -454,8 +473,8 @@ public class UserController{
      */
     @RequestMapping(path = "/bank/{id}/withdrawals", method = RequestMethod.GET)
     public Wrapper getAllWithdrawalsInBank(@PathVariable("id") int idBank,
-                                        @RequestHeader("token") String token,
-                                        @RequestHeader("idUser") int idUser) {
+                                           @RequestHeader("token") String token,
+                                           @RequestHeader("idUser") int idUser) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -489,6 +508,7 @@ public class UserController{
         for (WithdrawEntity w : withdrawalsResult) {
             ModelMap model = new ModelMap();
             model.addAttribute("idWithdraw", w.getId());
+            model.addAttribute("namaBank", bankSampah.getNama());
             model.addAttribute("waktu", w.getWaktu());
             model.addAttribute("nominal", w.getNominal());
             model.addAttribute("status", w.getStatus());
@@ -511,7 +531,7 @@ public class UserController{
      */
     @RequestMapping(path = "/withdrawals", method = RequestMethod.GET)
     public Wrapper getAllWithdrawals(@RequestHeader(value="token")String token,
-                                  @RequestHeader(value="idUser")int idUser) {
+                                     @RequestHeader(value="idUser")int idUser) {
 
         // check whether logged in user is authorized or not
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -620,9 +640,9 @@ public class UserController{
      * @param idUser the user's id, for authentication
      * @return response body containing the data only if the user is authorized
      */
-    @RequestMapping(path = "/transaction", method = RequestMethod.GET)
+    @RequestMapping(path = "/transactions", method = RequestMethod.GET)
     public Wrapper getAllTransactions(@RequestHeader("token")String token,
-                                   @RequestHeader("idUser")int idUser) {
+                                      @RequestHeader("idUser")int idUser) {
 
         // check whether logged in user is authorized or not
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -647,13 +667,12 @@ public class UserController{
             model.addAttribute("namaBank", bankResult.getNama());
 
             model.addAttribute("harga", t.getHarga());
-
-            Double totalSampah = Double.parseDouble(t.getSampahBesi());
-            totalSampah += Double.parseDouble(t.getSampahBotol());
-            totalSampah += Double.parseDouble(t.getSampahKertas());
-            totalSampah += Double.parseDouble(t.getSampahPlastik());
-            model.addAttribute("totalSampah", totalSampah + " kg");
+            model.addAttribute("sampahPlastik", t.getSampahPlastik());
+            model.addAttribute("sampahBotol", t.getSampahBotol());
+            model.addAttribute("sampahBesi", t.getSampahBesi());
+            model.addAttribute("sampahKertas", t.getSampahKertas());
             model.addAttribute("waktu", t.getWaktu());
+            model.addAttribute("status", t.getStatus());
             models.add(model);
         }
         return new Wrapper(200, "Success", models);
@@ -719,12 +738,10 @@ public class UserController{
         model.addAttribute("namaBank", bankResult.getNama());
 
         model.addAttribute("harga", transactionResult.getHarga());
-
-        Double totalSampah = Double.parseDouble(transactionResult.getSampahBesi());
-        totalSampah += Double.parseDouble(transactionResult.getSampahBotol());
-        totalSampah += Double.parseDouble(transactionResult.getSampahKertas());
-        totalSampah += Double.parseDouble(transactionResult.getSampahPlastik());
-        model.addAttribute("totalSampah", totalSampah + " kg");
+        model.addAttribute("sampahPlastik", transactionResult.getSampahPlastik());
+        model.addAttribute("sampahBotol", transactionResult.getSampahBotol());
+        model.addAttribute("sampahBesi", transactionResult.getSampahBesi());
+        model.addAttribute("sampahKertas", transactionResult.getSampahKertas());
         model.addAttribute("waktu", transactionResult.getWaktu());
 
         return new Wrapper(200,"Success", model);
@@ -783,19 +800,10 @@ public class UserController{
         }
 
         // check whether this user has sufficient balance or not
-        Integer transactionsBalance = transaksiService.getUserBalanceByIdBank(idBank, idUser);
-        int withdrawalsBalance = 0;
-        List<WithdrawEntity> withdrawalsInThisBank = withdrawService.getWithdrawByIdUserAndIdBank(idUser, idBank);
-
-        for (WithdrawEntity w : withdrawalsInThisBank) {
-            if (w.getStatus() == 2 ) {
-                withdrawalsBalance += w.getNominal();
-            }
-        }
-        int balance = transactionsBalance - withdrawalsBalance;
+        int balance = userById.getSaldo();
 
         if (balance < jumlah) {
-            return new Wrapper(403, "Insufficient balance", null);
+            return new Wrapper(403, "Insufficient balance: " + balance, null);
         }
         // end of checking
 
@@ -840,8 +848,8 @@ public class UserController{
      */
     @RequestMapping(path = "/requestWithdraw/check", method = RequestMethod.POST)
     public Wrapper getDaysSubscribed(@RequestHeader("token") String token,
-                                   @RequestHeader("idUser") int idUser,
-                                   @RequestParam("idBank")int idBank) {
+                                     @RequestHeader("idUser") int idUser,
+                                     @RequestParam("idBank")int idBank) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -974,8 +982,8 @@ public class UserController{
      */
     @RequestMapping(path = "/search", method = RequestMethod.POST)
     public Wrapper search(@RequestParam("query") String query,
-                                    @RequestHeader("token") String token,
-                                    @RequestHeader("idUser") int idUser) {
+                          @RequestHeader("token") String token,
+                          @RequestHeader("idUser") int idUser) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -1020,7 +1028,7 @@ public class UserController{
      *     <li>Check whether the transaction was made in a bank he/she already subscribed to or not.</li>
      * </ol>
      * <p>
-     * Possible update actions: accept or reject.
+     * Possible update actions: accept or reject. If the action is accept, user's balance will be updated
      * </p>
      * @param idTransaksi the transaction's id
      * @param status the status to be applied. 1 for accept, -1 for reject
@@ -1064,15 +1072,33 @@ public class UserController{
         if (transaction.getIdUser() != userById.getId()) {
             return new Wrapper(403, "Forbidden access", null);
         }
+
+        // cannot update with status 0
+        if (status == 0) {
+            return new Wrapper(400, "Cannot update with status 0", null);
+        }
+
+        // cannot update updated transaction
+        if (transaction.getStatus() == 1) {
+            return new Wrapper(400, "Transaction has been accepted", null);
+        } else if (transaction.getStatus() == -1) {
+            return new Wrapper(400, "Transaction has been rejected", null);
+        }
         // end of checking
 
-        // update the status
+        // update the transaction status
         transaction = transaksiService.saveUpdateStatus(transaction, status);
 
         // check whether this is the user's first transaction or not
         if (subscription.getTransaksiPertama() == -1) {
             subscription.setTransaksiPertama(PickleUtil.generateCurrentTime());
             langgananService.save(subscription);
+        }
+
+        // update user's balance
+        if (status == 1) {
+            userById.setSaldo(userById.getSaldo() + transaction.getHarga());
+            userService.save(userById);
         }
         return new Wrapper(200, "Success", transaction);
     }

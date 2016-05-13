@@ -21,39 +21,39 @@ public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Int
     List<TransaksiEntity> findByIdBank(int idBank);
     List<TransaksiEntity> findByIdBankAndIdUser(int idBank, int idUser);
 
-    @Query(value = "SELECT sum(sampahplastik) from transaksi where idbank = :idbank",
+    @Query(value = "SELECT sum(sampahplastik) from transaksi where idbank = :idbank and status = 1",
             nativeQuery = true)
     Double getTotalSampahPlastikBank(@Param("idbank") int idbank);
 
-    @Query(value = "SELECT sum(sampahbotol) from transaksi where idbank = :idbank",
+    @Query(value = "SELECT sum(sampahbotol) from transaksi where idbank = :idbank and status = 1",
             nativeQuery = true)
     Integer getTotalSampahBotolBank(@Param("idbank") int idbank);
 
-    @Query(value = "SELECT sum(sampahbesi) from transaksi where idbank = :idbank",
+    @Query(value = "SELECT sum(sampahbesi) from transaksi where idbank = :idbank and status = 1",
             nativeQuery = true)
     Double getTotalSampahBesiBank(@Param("idbank") int idbank);
 
-    @Query(value = "SELECT sum(sampahkertas) from transaksi where idbank = :idbank",
+    @Query(value = "SELECT sum(sampahkertas) from transaksi where idbank = :idbank and status = 1",
             nativeQuery = true)
     Double getTotalSampahKertasBank(@Param("idbank") int idbank);
 
-    @Query(value = "SELECT sum(sampahplastik) from transaksi where iduser = :iduser",
+    @Query(value = "SELECT sum(sampahplastik) from transaksi where iduser = :iduser and status = 1",
             nativeQuery = true)
     Double getTotalSampahPlastikUser(@Param("iduser") int iduser);
 
-    @Query(value = "SELECT sum(sampahbotol) from transaksi where iduser = :iduser",
+    @Query(value = "SELECT sum(sampahbotol) from transaksi where iduser = :iduser and status = 1",
             nativeQuery = true)
     Integer getTotalSampahBotolUser(@Param("iduser") int iduser);
 
-    @Query(value = "SELECT sum(sampahbesi) from transaksi where iduser = :iduser",
+    @Query(value = "SELECT sum(sampahbesi) from transaksi where iduser = :iduser and status = 1",
             nativeQuery = true)
     Double getTotalSampahBesiUser(@Param("iduser") int iduser);
 
-    @Query(value = "SELECT sum(sampahkertas) from transaksi where iduser = :iduser",
+    @Query(value = "SELECT sum(sampahkertas) from transaksi where iduser = :iduser and status = 1",
             nativeQuery = true)
     Double getTotalSampahKertasUser(@Param("iduser") int iduser);
 
-    @Query(value = "SELECT avg(rating) from transaksi where idbank = :idbank",
+    @Query(value = "SELECT avg(rating) from transaksi where idbank = :idbank and status = 1",
             nativeQuery = true)
     Double getTotalRating(@Param("idbank") int idbank);
 

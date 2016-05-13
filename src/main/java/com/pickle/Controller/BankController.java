@@ -39,18 +39,6 @@ public class BankController {
     @Autowired
     private WithdrawService withdrawService;
 
-    /**
-     * Login for registered bank
-     *
-     * <p>Authentication phase :</p>
-     * <ol>
-     *     <li>Check whether the phone number given exists or not</li>
-     * </ol>
-     *
-     * @param phoneNumber the bank's phone number
-     * @param password the bank's password for authentation
-     * @return response body containing bank profile
-     */
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public Wrapper login(@RequestParam("phoneNumber") String phoneNumber, @RequestParam("password") String password) {
         BanksampahEntity bankResult = bankService.validation(phoneNumber, password);
@@ -63,25 +51,18 @@ public class BankController {
             model.addAttribute("rating", rating);
             model.addAttribute("totalNasabah", nasabah);
             PickleUtil.countSampahBank(bankResult.getId(), model, transaksiService);
-            return new Wrapper(200, "Login", model);
+            return new Wrapper(200, "Login berhasil", model);
         } else {
-            return new Wrapper(200, "Gagal", null);
+            return new Wrapper(200, "Login gagal", null);
         }
     }
 
-    /**
-     * Get detail a nasabah based their id
-     *
-     * @param id the nasabah id that their data want to get
-     * @return response body containing the data of a nasabah
-     */
     @RequestMapping(path = "/nasabah/{id}", method = RequestMethod.GET)
     public Wrapper getUserById(@PathVariable("id") int id) {
         UserEntity user = userService.getUserById(id);
         ModelMap model = new ModelMap();
         model.addAttribute("id", user.getId());
         model.addAttribute("nama", user.getNama());
-        model.addAttribute("email", user.getEmail());
         model.addAttribute("phoneNumber", user.getPhoneNumber());
         model.addAttribute("alamat", user.getAlamat());
         model.addAttribute("saldo", user.getSaldo());
@@ -89,45 +70,33 @@ public class BankController {
         return new Wrapper(200, "Success", model);
     }
 
-    /**
-     * Get list of nasabah that subscribed to a bank
-     *
-     * @param idbank id from bank which login, as header param
-     * @return response body containing data of all nasabah as a list
-     */
     @RequestMapping(path = "/nasabah/getAll", method = RequestMethod.GET)
     public Wrapper getListAllNasabah(@RequestHeader(value = "idBank") int idbank) {
         List<LanggananEntity> langganan = langgananService.getLanggananByIdbank(idbank);
         if (langganan == null) {
-            return new Wrapper(404, "Data Not Found", null);
+            return new Wrapper(404, "Data tidak ditemukan", null);
         }
         List<ModelMap> result = new LinkedList<ModelMap>();
 
         for (LanggananEntity n : langganan) {
             ModelMap model = new ModelMap();
+
             UserEntity user = userService.getUserById(n.getIduser());
             model.addAttribute("id", user.getId());
             model.addAttribute("nama", user.getNama());
             model.addAttribute("photo", user.getPhoto());
-            int saldo = transaksiService.getUserBalanceByIdBank(idbank, user.getId());
-            model.addAttribute("memberSince", n.getLanggananSejak());
+            model.addAttribute("saldo", user.getSaldo());
             result.add(model);
         }
 
         return new Wrapper(200, "Success", result);
     }
 
-    /**
-     * Get list of all transaction from a bank
-     *
-     * @param idBank id from bank which login, as header param
-     * @return response body containing data of all transaction as a list
-     */
     @RequestMapping(path = "/transaction", method = RequestMethod.GET)
     public Wrapper getListAllTransaction(@RequestHeader(value = "idBank") int idBank) {
         List<TransaksiEntity> transaction = transaksiService.getTransaksiByIdBank(idBank);
         if (transaction == null) {
-            return new Wrapper(404, "Data Not Found", null);
+            return new Wrapper(404, "Data tidak ditemukan", null);
         }
         List<ModelMap> result = new LinkedList<ModelMap>();
         for (TransaksiEntity t : transaction) {
@@ -144,70 +113,19 @@ public class BankController {
 
     }
 
+//    @RequestMapping(path = "/transaction/{id}", method = RequestMethod.GET)
+//    public Wrapper getDetailTransaction(@PathVariable("id")int id){
+//        TransaksiEntity transaction = transaksiService.getTransaksiById(id);
+//        ModelMap model = new ModelMap();
+//        model.addAttribute("");
+//
+//    }
 
-    /**
-     * Create a new transaction
-     *
-     * @param phoneNumber the nasabah's phone number
-     * @param plastik total trash of plastik that nasabah given
-     * @param logam total trash of logam that nasabah given
-     * @param kertas total trash of kertas that nasabah given
-     * @param botol total trash of botol that nasabah given
-     * @param totalHarga total value that nasabah got from this transaction
-     * @param idBank id from bank which login, as header param
-     * @return response body with message that inform that transcation success or not
-     */
-    @RequestMapping(path = "/transaction/addNew", method = RequestMethod.POST)
-    public Wrapper newTransaction(@RequestParam("phoneNumber") String phoneNumber,
-                                  @RequestParam("plastik") String plastik,
-                                  @RequestParam("logam") String logam,
-                                  @RequestParam("kertas") String kertas,
-                                  @RequestParam("botol") String botol,
-                                  @RequestParam("totalHarga") String totalHarga,
-                                  @RequestHeader("idBank")int idBank) {
-
-        TransaksiEntity transaksi = new TransaksiEntity();
-        UserEntity user = userService.getUserByPhoneNumber(phoneNumber);
-        if(user == null) return new Wrapper(200,"Nasabah tidak ditemukan", null);
-        int iduser = user.getId();
-        int harga = Integer.parseInt(totalHarga);
-        transaksi.setIdUser(iduser);
-        transaksi.setIdBank(idBank);
-        transaksi.setWaktu(PickleUtil.generateCurrentTime());
-        transaksi.setHarga(harga);
-        transaksi.setRating(null);
-        transaksi.setSampahPlastik(plastik);
-        transaksi.setSampahBesi(logam);
-        transaksi.setSampahBotol(botol);
-        transaksi.setSampahKertas(kertas);
-
-        TransaksiEntity hasil = transaksiService.save(transaksi);
-        LanggananEntity langganan = langgananService.isSubscribedToThisBank(idBank, iduser);
-
-        if(langganan == null) return new Wrapper(200, "Nasabah belum berlangganan", null);
-        if(hasil == null) return new Wrapper(200, "gagal menyimpan data", null);
-        else {
-            if (langganan.getTransaksiPertama() == -1) {
-                langganan.setTransaksiPertama(PickleUtil.generateCurrentTime());
-                langgananService.save(langganan);
-            }
-        }
-
-        return new Wrapper(201, "Transaksi berhasil dibuat", null);
-    }
-
-
-    /**
-     * Get list of all completed withdrawal process
-     *
-     * @param idBank id from bank which login, as header param
-     * @return response body containing data of all completed withdrawal process as a list
-     */
     @RequestMapping(path = "/withdraw", method = RequestMethod.GET)
     public Wrapper getListAllWithdraw(@RequestHeader(value = "idBank") int idBank) {
         List<WithdrawEntity> withdrawals = withdrawService.getWithdrawByIdBank(idBank);
         if (withdrawals == null) {
-            return new Wrapper(404, "Data Not Found", null);
+            return new Wrapper(404, "Data tidak ditemukan", null);
         }
         List<ModelMap> result = new LinkedList<ModelMap>();
         for (WithdrawEntity w : withdrawals) {
@@ -225,13 +143,6 @@ public class BankController {
         return new Wrapper(200, "Success", result);
     }
 
-
-    /**
-     * get detail data of withdrawal with spesific id of transaction
-     *
-     * @param id the id's transaction
-     * @return response body containing data of a withdrawal
-     */
     @RequestMapping(path = "/withdraw/{id}", method = RequestMethod.GET)
     public Wrapper getListDetailWithdraw(@PathVariable(value = "id") int id) {
         WithdrawEntity withdrawals = withdrawService.getWithdrawById(id);
@@ -240,60 +151,90 @@ public class BankController {
         if (user == null) return new Wrapper(200, "Data Not Found", null);
         ModelMap model = new ModelMap();
         model.addAttribute("nama", user.getNama());
-        model.addAttribute("saldo", withdrawals.getNominal());
+        model.addAttribute("nominal", withdrawals.getNominal());
         model.addAttribute("waktu", withdrawals.getWaktu());
         model.addAttribute("status", withdrawals.getStatus());
         return new Wrapper(200, "Success", model);
     }
 
-
-    /**
-     * Update status a not response withdrawal to be accept
-     *
-     * @param id the id's transaction
-     * @return response body containing data of this withdrawal process
-     */
     @RequestMapping(path = "/withdraw/updateStatus/accept", method = RequestMethod.PUT)
     public Wrapper updateStatusWithdrawAccept(@RequestHeader(value = "id") int id) {
         WithdrawEntity data = withdrawService.getWithdrawById(id);
+
+        // cannot update updated withdrawal
+        if (data.getStatus() != 0) {
+            return new Wrapper(400, "Permintaan sudah direspon", null);
+        }
         WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, 1);
         return new Wrapper(200, "Success", withdraw);
     }
 
-
-    /**
-     * Update status a not response withdrawal to be reject
-     *
-     * @param id the id's transaction
-     * @return response body containing data of this withdrawal process
-     */
     @RequestMapping(path = "/withdraw/updateStatus/reject", method = RequestMethod.PUT)
     public Wrapper updateStatusWithdrawReject(@RequestHeader(value = "id") int id) {
         WithdrawEntity data = withdrawService.getWithdrawById(id);
+
+        // cannot update updated withdrawal
+        if (data.getStatus() != 0) {
+            return new Wrapper(400, "Permintaan sudah direspon", null);
+        }
         WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, -1);
         return new Wrapper(200, "Success", withdraw);
     }
 
-    /**
-     * Update status a not complete withdrawal to be complete
-     *
-     * @param id the id's transaction
-     * @return response body containing data of this withdrawal process
-     */
     @RequestMapping(path = "/withdraw/updateStatus/complete", method = RequestMethod.PUT)
     public Wrapper updateStatusWithdrawComplete(@RequestHeader(value = "id") int id) {
         WithdrawEntity data = withdrawService.getWithdrawById(id);
+
+        // cannot update updated withdrawal or rejected withdrawal
+        if (data.getStatus() != 1) {
+            return new Wrapper(400, "Permintaan sudah direspon", null);
+        }
         WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, 2);
+
+        // update user's balance
+        UserEntity theUser = userService.getUserById(withdraw.getIdUser());
+        theUser.setSaldo(theUser.getSaldo() - withdraw.getNominal());
+        userService.save(theUser);
         return new Wrapper(200, "Success", withdraw);
     }
 
+    @RequestMapping(path = "/transaction/addNew", method = RequestMethod.POST)
+    public Wrapper newTransaction(@RequestParam("phoneNumber") String phoneNumber,
+                                  @RequestParam("plastik") String plastik,
+                                  @RequestParam("logam") String logam,
+                                  @RequestParam("kertas") String kertas,
+                                  @RequestParam("botol") String botol,
+                                  @RequestParam("totalHarga") int totalHarga,
+                                  @RequestHeader("idBank")int idBank) {
 
-    /**
-     * Get list of all request withdrawal from nasabah that not response
-     *
-     * @param idBank id from bank which login, as header param
-     * @return response body containing data of all request withdrawal as a list
-     */
+        TransaksiEntity transaksi = new TransaksiEntity();
+        UserEntity user = userService.getUserByPhoneNumber(phoneNumber);
+        if(user == null) return new Wrapper(200,"Nasabah tidak ditemukan", null);
+        int iduser = user.getId();
+        transaksi.setIdUser(iduser);
+        transaksi.setIdBank(idBank);
+        transaksi.setWaktu(PickleUtil.generateCurrentTime());
+        transaksi.setHarga(totalHarga);
+        transaksi.setRating(0);
+        transaksi.setSampahPlastik(plastik);
+        transaksi.setSampahBesi(logam);
+        transaksi.setSampahBotol(botol);
+        transaksi.setSampahKertas(kertas);
+
+        TransaksiEntity hasil = transaksiService.save(transaksi);
+        LanggananEntity langganan = langgananService.isSubscribedToThisBank(idBank, iduser);
+
+        if(langganan == null) {
+            return new Wrapper(200, "Nasabah belum berlangganan", null);
+        }
+
+        if(hasil == null) {
+            return new Wrapper(200, "Gagal menyimpan data", null);
+        }
+        return new Wrapper(201, "Transaksi berhasil dibuat", transaksi);
+
+    }
+
     @RequestMapping(path = "/notification", method = RequestMethod.GET)
     public Wrapper getListNotification(@RequestHeader(value = "idBank") int idBank) {
 
@@ -309,7 +250,6 @@ public class BankController {
                 model.addAttribute("nama", user.getNama());
                 model.addAttribute("waktu", w.getWaktu());
                 model.addAttribute("harga", w.getNominal());
-                model.addAttribute("status", w.getStatus());
                 result.add(model);
             }
         }
