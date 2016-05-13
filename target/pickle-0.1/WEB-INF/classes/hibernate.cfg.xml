@@ -4,7 +4,7 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <property name="connection.url">jdbc:mysql://104.199.142.211:3306/pickle_dev</property>
+        <property name="connection.url">jdbc:mysql://104.199.146.14:3306/pickle_dev</property>
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
         <mapping class="com.pickle.Domain.BanksampahEntity"/>
         <mapping class="com.pickle.Domain.LanggananEntity"/>

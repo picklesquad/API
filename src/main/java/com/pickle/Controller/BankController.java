@@ -63,6 +63,7 @@ public class BankController {
         ModelMap model = new ModelMap();
         model.addAttribute("id", user.getId());
         model.addAttribute("nama", user.getNama());
+        model.addAttribute("email", user.getEmail());
         model.addAttribute("phoneNumber", user.getPhoneNumber());
         model.addAttribute("alamat", user.getAlamat());
         model.addAttribute("saldo", user.getSaldo());
@@ -85,6 +86,7 @@ public class BankController {
             model.addAttribute("id", user.getId());
             model.addAttribute("nama", user.getNama());
             model.addAttribute("photo", user.getPhoto());
+            model.addAttribute("memberSince", n.getLanggananSejak());
             model.addAttribute("saldo", user.getSaldo());
             result.add(model);
         }
@@ -151,7 +153,7 @@ public class BankController {
         if (user == null) return new Wrapper(200, "Data Not Found", null);
         ModelMap model = new ModelMap();
         model.addAttribute("nama", user.getNama());
-        model.addAttribute("nominal", withdrawals.getNominal());
+        model.addAttribute("saldo", withdrawals.getNominal());
         model.addAttribute("waktu", withdrawals.getWaktu());
         model.addAttribute("status", withdrawals.getStatus());
         return new Wrapper(200, "Success", model);
@@ -250,6 +252,7 @@ public class BankController {
                 model.addAttribute("nama", user.getNama());
                 model.addAttribute("waktu", w.getWaktu());
                 model.addAttribute("harga", w.getNominal());
+                model.addAttribute("status", w.getStatus());
                 result.add(model);
             }
         }
