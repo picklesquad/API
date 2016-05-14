@@ -57,6 +57,15 @@ public class BankController {
         }
     }
 
+    @RequestMapping(path = "/gcmRegister", method = RequestMethod.PUT)
+    public Wrapper updateRegisterIdGcm(@RequestHeader("id") int id, @RequestParam("key")String key){
+        BanksampahEntity bank = bankService.findById(id);
+        if(bank == null) return new Wrapper(200,"Gagal",null);
+        bank.setGcmId(key);
+        bankService.saveGcmId(id, bank);
+        return new Wrapper(200,"Success", 200);
+    }
+
     @RequestMapping(path = "/nasabah/{id}", method = RequestMethod.GET)
     public Wrapper getUserById(@PathVariable("id") int id) {
         UserEntity user = userService.getUserById(id);

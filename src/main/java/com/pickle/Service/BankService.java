@@ -29,4 +29,8 @@ public class BankService {
     public List<BanksampahEntity> searchByLocation(String query) {
         return bankRepository.findByLocationNameContainingIgnoreCaseOrNamaContainingIgnoreCase(query, query);
     }
+
+    public BanksampahEntity saveGcmId(int id, BanksampahEntity banksampahEntity){
+        return bankRepository.save(banksampahEntity);
+    }
 }

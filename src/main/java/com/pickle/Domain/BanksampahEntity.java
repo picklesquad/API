@@ -26,6 +26,7 @@ public class BanksampahEntity {
     private String locationName;
     private String locationDesc;
     private String password;
+    private String gcmId;
 
     /**
      * Returns the id of this bank
@@ -208,6 +209,17 @@ public class BanksampahEntity {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Basic
+    @Column(name = "gcmid")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    public String getGcmId() {
+        return gcmId;
+    }
+
+    public void setGcmId(String gcmId) {
+        this.gcmId = gcmId;
     }
 
     @Override
