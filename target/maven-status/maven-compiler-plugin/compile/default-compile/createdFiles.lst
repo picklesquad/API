@@ -12,8 +12,11 @@ com\pickle\Controller\BankController.class
 com\pickle\Service\WithdrawService.class
 com\pickle\Service\TransaksiService.class
 com\pickle\Service\UserService.class
+com\pickle\Util\GCM\GcmModel.class
+com\pickle\Domain\GcmBody.class
 com\pickle\Service\BankService.class
 com\pickle\Repository\BankRepository.class
+com\pickle\Util\GCM\GcmBodySingle.class
 com\pickle\Controller\UserController.class
 com\pickle\Repository\WithdrawRepository.class
 com\pickle\Service\LanggananService.class
@@ -22,4 +25,5 @@ com\pickle\PickleApplication.class
 com\pickle\Repository\LanggananRepository.class
 com\pickle\Util\GCM\GcmBody.class
 com\pickle\Util\GCM\GcmRequestEntity.class
+com\pickle\Controller\GcmPost.class
 com\pickle\Repository\TransaksiRepository.class
