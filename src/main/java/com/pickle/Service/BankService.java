@@ -30,7 +30,7 @@ public class BankService {
         return bankRepository.findByLocationNameContainingIgnoreCaseOrNamaContainingIgnoreCase(query, query);
     }
 
-    public BanksampahEntity saveGcmId(int id, BanksampahEntity banksampahEntity){
+    public BanksampahEntity save(BanksampahEntity banksampahEntity){
         return bankRepository.save(banksampahEntity);
     }
 }

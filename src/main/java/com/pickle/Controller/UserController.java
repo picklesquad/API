@@ -56,16 +56,16 @@ public class UserController{
         UserEntity userResult = userService.validation(email);
 
         if (userResult == null) {
-            return new Wrapper(404, "Email not found", null);
+            return new Wrapper(404, "Email tidak ditemukan", null);
         }
         // end of checking
 
         int isComplete = userService.getIsComplete(email);
 
         if (isComplete == 0) {
-            return new Wrapper(200, "Success", false);
+            return new Wrapper(200, "Sukses", false);
         } else {
-            return new Wrapper(200, "Success", true);
+            return new Wrapper(200, "Sukses", true);
         }
     }
 
@@ -86,7 +86,7 @@ public class UserController{
         UserEntity userResult = userService.validation(email);
 
         if (userResult == null) {
-            return new Wrapper(404, "Email not found", null);
+            return new Wrapper(404, "Email tidak ditemukan", null);
         }
         // end of checking
 
@@ -108,7 +108,7 @@ public class UserController{
         model.addAttribute("saldo", userResult.getSaldo());
         PickleUtil.countSampahUser(userResult.getId(), model, transaksiService);
 
-        return new Wrapper(200, "Success", model);
+        return new Wrapper(200, "Sukses", model);
     }
 
     /**
@@ -143,13 +143,13 @@ public class UserController{
         // check whether the phone number has been registered or not
         UserEntity test = userService.getUserByPhoneNumber(phoneNumber);
         if (test != null) {
-            return new Wrapper(400, "Phone number already registered.", null);
+            return new Wrapper(400, "No. HP sudah terdaftar", null);
         }
 
         // check whether the email has been registered or not
         test = userService.getUserByEmail(email);
         if (test != null) {
-            return new Wrapper(400, "E-mail already registered.", null);
+            return new Wrapper(400, "Email sudah terdaftar", null);
         }
         // end of checking
 
@@ -162,7 +162,7 @@ public class UserController{
         if (facebookPhoto != null && facebookPhoto.length() > 0) {
             newUser.setPhoto(facebookPhoto);
         } else {
-            newUser.setPhoto("http://imgbox.com/YXCC1M4W");
+            newUser.setPhoto("http://i.imgbox.com/HMTE02Qv.jpg");
         }
         newUser.setAlamat(alamat);
         newUser.setExp(0);
@@ -190,7 +190,7 @@ public class UserController{
         model.addAttribute("sampahBesi", 0);
         model.addAttribute("saldo", newUser.getSaldo());
 
-        return new Wrapper(201, "Success", model);
+        return new Wrapper(201, "Sukses", model);
     }
 
     /**
@@ -215,11 +215,11 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
         // end of checking
 
@@ -254,7 +254,7 @@ public class UserController{
 
             models.add(model);
         }
-        return new Wrapper(200, "Success", models);
+        return new Wrapper(200, "Sukses", models);
     }
 
     /**
@@ -283,23 +283,23 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
         if (bankSampah == null) {
-            return new Wrapper(404, "Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah tidak ditemukan", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
         if (langgananEntity == null) {
-            return new Wrapper(403, "You're not subscribed to this bank", null);
+            return new Wrapper(403, "Akses ditolak: belum berlangganan", null);
         }
         // end of checking
 
@@ -324,7 +324,7 @@ public class UserController{
         model.addAttribute("namaBank", bankSampah.getNama());
         model.addAttribute("balance", transactionsBalance - withdrawalsBalance);
 
-        return new Wrapper(200, "Success", model);
+        return new Wrapper(200, "Sukses", model);
     }
 
     /**
@@ -351,17 +351,18 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidka ditemukan", null);
         }
+
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
 
         if (bankSampah == null) {
-            return new Wrapper(404, "Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah tidak ditemukan", null);
         }
         // end of checking
 
@@ -388,7 +389,7 @@ public class UserController{
             model.addAttribute("isSubsribed", true);
         }
 
-        return new Wrapper(200, "Success", model);
+        return new Wrapper(200, "Sukses", model);
     }
 
     /**
@@ -416,24 +417,25 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidka ditemukan", null);
         }
+
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
 
         if (bankSampah == null) {
-            return new Wrapper(404, "Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah tidak ditemukan", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
 
         if (langgananEntity == null) {
-            return new Wrapper(403, "You're not subscribed to this bank", null);
+            return new Wrapper(403, "Akses ditolak: belum berlangganan", null);
         }
         // end of checking
 
@@ -453,7 +455,7 @@ public class UserController{
             model.addAttribute("sampahKertas", t.getSampahKertas());
             models.add(model);
         }
-        return new Wrapper(200, "Success", models);
+        return new Wrapper(200, "Sukses", models);
     }
 
     /**
@@ -481,24 +483,25 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidka ditemukan", null);
         }
+
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
 
         if (bankSampah == null) {
-            return new Wrapper(404, "Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah tidak ditemukan", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
 
         if (langgananEntity == null) {
-            return new Wrapper(403, "You're not subscribed to this bank", null);
+            return new Wrapper(403, "Akses ditolak: belum berlangganan", null);
         }
         // end of checking
 
@@ -514,7 +517,7 @@ public class UserController{
             model.addAttribute("status", w.getStatus());
             models.add(model);
         }
-        return new Wrapper(200, "Success", models);
+        return new Wrapper(200, "Sukses", models);
     }
 
     /**
@@ -538,11 +541,11 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
         // end of checking
 
@@ -561,7 +564,7 @@ public class UserController{
             model.addAttribute("waktu", w.getWaktu());
             models.add(model);
         }
-        return new Wrapper(200, "Success", models);
+        return new Wrapper(200, "Sukses", models);
     }
 
     /**
@@ -590,29 +593,29 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found.", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access.", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether desired withdraw id exists or not
         WithdrawEntity withdrawResult = withdrawService.getWithdrawById(id);
         if (withdrawResult == null) {
-            return new Wrapper(404, "Withdrawal not found.", null);
+            return new Wrapper(404, "Data tidak ditemukan", null);
         }
 
         // verify this user is truly the one who did this withdrawal
         if(withdrawResult.getIdUser() != userById.getId()) {
-            return new Wrapper(403, "Forbidden access.", null);
+            return new Wrapper(403, "Akses ditolak: withdrawal tidak valid", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(withdrawResult.getIdBank(), idUser);
 
         if (langgananEntity == null) {
-            return new Wrapper(403, "You're not subscribed to this bank", null);
+            return new Wrapper(403, "Akses ditolak: belum berlangganan", null);
         }
         // end of checking
 
@@ -625,7 +628,7 @@ public class UserController{
         model.addAttribute("jumlah", withdrawResult.getNominal());
         model.addAttribute("status", withdrawResult.getStatus());
         model.addAttribute("waktu", withdrawResult.getWaktu());
-        return new Wrapper(200, "Success", model);
+        return new Wrapper(200, "Sukses", model);
     }
 
     /**
@@ -647,12 +650,13 @@ public class UserController{
         // check whether logged in user is authorized or not
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
+
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
         // end of checking
 
@@ -675,7 +679,7 @@ public class UserController{
             model.addAttribute("status", t.getStatus());
             models.add(model);
         }
-        return new Wrapper(200, "Success", models);
+        return new Wrapper(200, "Sukses", models);
     }
 
     /**
@@ -704,30 +708,30 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether the transaction exists or not
         TransaksiEntity transactionResult = transaksiService.getTransaksiById(id);
 
         if (transactionResult == null) {
-            return new Wrapper(404, "Transaction not found", null);
+            return new Wrapper(404, "Data tidak ditemukan", null);
         }
 
         // verify this user is truly the one who did this transaction
         if (transactionResult.getIdUser() != userById.getId()) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: transaksi tidak valid", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(transactionResult.getIdBank(), idUser);
 
         if (langgananEntity == null) {
-            return new Wrapper(403, "You're not subscribed to this bank", null);
+            return new Wrapper(403, "Akses ditolak: belum berlangganan", null);
         }
         // end of checking
 
@@ -744,7 +748,7 @@ public class UserController{
         model.addAttribute("sampahKertas", transactionResult.getSampahKertas());
         model.addAttribute("waktu", transactionResult.getWaktu());
 
-        return new Wrapper(200,"Success", model);
+        return new Wrapper(200, "Sukses", model);
     }
 
     /**
@@ -779,31 +783,32 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
+
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
 
         if (bankSampah == null) {
-            return new Wrapper(404, "Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah tidak ditemukan", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
 
         if (langgananEntity == null) {
-            return new Wrapper(403, "You're not subscribed to this bank", null);
+            return new Wrapper(403, "Akses ditolak: belum berlangganan", null);
         }
 
         // check whether this user has sufficient balance or not
         int balance = userById.getSaldo();
 
         if (balance < jumlah) {
-            return new Wrapper(403, "Insufficient balance: " + balance, null);
+            return new Wrapper(403, "Akses ditolak. Saldo anda hanya " + PickleUtil.formatRupiah(balance), null);
         }
         // end of checking
 
@@ -824,7 +829,7 @@ public class UserController{
         model.addAttribute("status", PickleUtil.generateStatus(newWithdraw.getStatus()));
         model.addAttribute("waktu", newWithdraw.getWaktu());
 
-        return new Wrapper(201, "New withdraw request has been added", model);
+        return new Wrapper(201, "Permintaan berhasil ditambahkan", model);
     }
 
     /**
@@ -856,25 +861,25 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
 
         if (bankSampah == null) {
-            return new Wrapper(404, "Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah tidak ditemukan", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
 
         if (langgananEntity == null) {
-            return new Wrapper(403, "You're not subscribed to this bank", null);
+            return new Wrapper(403, "Akses ditolak: belum berlangganan", null);
         }
         // end of checking
 
@@ -888,16 +893,16 @@ public class UserController{
         if (firstTransactionTime == -1) {
             model.addAttribute("jumlahHari", -1);
             model.addAttribute("boolean:", false);
-            return new Wrapper(200, "Success", model);
+            return new Wrapper(200, "Sukses", model);
         }
         model.addAttribute("jumlahHari", numberOfDays);
 
         if (numberOfDays >= 90) {
             model.addAttribute("boolean:", true);
-            return new Wrapper(200, "Success", model);
+            return new Wrapper(200, "Sukses", model);
         } else {
             model.addAttribute("boolean:", false);
-            return new Wrapper(200, "Success", model);
+            return new Wrapper(200, "Sukses", model);
         }
     }
 
@@ -924,26 +929,27 @@ public class UserController{
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
         UserEntity userById = userService.getUserById(idUser);
+
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether the bank exists or not
         BanksampahEntity bankSampah = bankService.findById(idBank);
 
         if (bankSampah == null) {
-            return new Wrapper(404, "Bank sampah not found", null);
+            return new Wrapper(404, "Bank sampah tidak ditemukan", null);
         }
 
         // check whether this user has subscribed to this bank or not
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
 
         if (langgananEntity != null) {
-            return new Wrapper(400, "You're already subscribed to this bank", null);
+            return new Wrapper(400, "Akses ditolak: sudah berlangganan", null);
         }
         // end of checking
 
@@ -962,7 +968,7 @@ public class UserController{
         model.addAttribute("langgananSejak", newLangganan.getLanggananSejak());
         model.addAttribute("transaksiPertama", newLangganan.getTransaksiPertama());
 
-        return new Wrapper(201, "You're now subscribed to this bank", model);
+        return new Wrapper(201, "Anda kini menjadi pelanggan " + bankSampah.getNama(), model);
     }
 
     /**
@@ -990,11 +996,11 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         try {
@@ -1015,7 +1021,7 @@ public class UserController{
             model.addAttribute("locationLng", b.getLocationLng());
             models.add(model);
         }
-        return new Wrapper(200, "Success", models);
+        return new Wrapper(200, "Sukses", models);
     }
 
     /**
@@ -1047,42 +1053,42 @@ public class UserController{
         UserEntity userById = userService.getUserById(idUser);
 
         if (userByToken == null || userById == null) {
-            return new Wrapper(404, "User not found", null);
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
         }
 
         if (!userByToken.equals(userById)) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: token tidak valid", null);
         }
 
         // check whether the transaction exists or not
         TransaksiEntity transaction = transaksiService.getTransaksiById(idTransaksi);
 
         if (transaction == null) {
-            return new Wrapper(404, "Transaction not found", null);
+            return new Wrapper(404, "Data tidak ditemukan", null);
         }
 
         // check whether the transaction was made in a bank he/she already subscribed to or not
         LanggananEntity subscription = langgananService.isSubscribedToThisBank(transaction.getIdBank(), idUser);
 
         if (subscription == null) {
-            return new Wrapper(403, "You're not subscribed to this bank", null);
+            return new Wrapper(403, "Akses ditolak: belum berlangganan", null);
         }
 
         // verify this user is truly the one who did this transaction
         if (transaction.getIdUser() != userById.getId()) {
-            return new Wrapper(403, "Forbidden access", null);
+            return new Wrapper(403, "Akses ditolak: transaksi tidak valid", null);
         }
 
         // cannot update with status 0
         if (status == 0) {
-            return new Wrapper(400, "Cannot update with status 0", null);
+            return new Wrapper(403, "Akses ditolak: status tidak valid", null);
         }
 
         // cannot update updated transaction
         if (transaction.getStatus() == 1) {
-            return new Wrapper(400, "Transaction has been accepted", null);
+            return new Wrapper(400, "Akses ditolak: transaksi sudah ditambahkan", null);
         } else if (transaction.getStatus() == -1) {
-            return new Wrapper(400, "Transaction has been rejected", null);
+            return new Wrapper(400, "Akses ditolak: transaksi sudah dibatalkan", null);
         }
         // end of checking
 
@@ -1100,6 +1106,17 @@ public class UserController{
             userById.setSaldo(userById.getSaldo() + transaction.getHarga());
             userService.save(userById);
         }
-        return new Wrapper(200, "Success", transaction);
+        return new Wrapper(200, "Sukses", transaction);
+    }
+
+    @RequestMapping(path = "/gcmRegister", method = RequestMethod.PUT)
+    public Wrapper updateRegisterIdGcm(@RequestHeader("idUser") int idUser, @RequestParam("key") String key){
+        UserEntity user = userService.getUserById(idUser);
+
+        if(user == null) return new Wrapper(200, "Gagal", null);
+        user.setGcmId(key);
+        userService.save(user);
+
+        return new Wrapper(200, "Sukses", 200);
     }
 }

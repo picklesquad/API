@@ -4,6 +4,8 @@ import com.pickle.Domain.Wrapper;
 import com.pickle.Service.TransaksiService;
 import org.springframework.ui.ModelMap;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -148,5 +150,16 @@ public class PickleUtil {
 
         long diff = dateNow.getTime() - dateThen.getTime();
         return diff / MILLIS_PER_DAY;
+    }
+
+    public static String formatRupiah(int harga){
+        DecimalFormat df = (DecimalFormat) DecimalFormat.getCurrencyInstance();
+        DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+        dfs.setCurrencySymbol("");
+        dfs.setMonetaryDecimalSeparator(',');
+        dfs.setGroupingSeparator('.');
+        df.setDecimalFormatSymbols(dfs);
+        String hsl = "Rp. " + df.format(harga);
+        return hsl;
     }
 }

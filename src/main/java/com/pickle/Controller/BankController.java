@@ -62,10 +62,10 @@ public class BankController {
     @RequestMapping(path = "/gcmRegister", method = RequestMethod.PUT)
     public Wrapper updateRegisterIdGcm(@RequestHeader("id") int id, @RequestParam("key")String key){
         BanksampahEntity bank = bankService.findById(id);
-        if(bank == null) return new Wrapper(200,"Gagal",null);
+        if(bank == null) return new Wrapper(200, "Gagal", null);
         bank.setGcmId(key);
-        bankService.saveGcmId(id, bank);
-        return new Wrapper(200,"Success",  200);
+        bankService.save(bank);
+        return new Wrapper(200, "Sukses", 200);
     }
 
     @RequestMapping(path = "/nasabah/{id}", method = RequestMethod.GET)
@@ -79,7 +79,7 @@ public class BankController {
         model.addAttribute("alamat", user.getAlamat());
         model.addAttribute("saldo", user.getSaldo());
         PickleUtil.countSampahUser(id, model, transaksiService);
-        return new Wrapper(200, "Success", model);
+        return new Wrapper(200, "Sukses", model);
     }
 
     @RequestMapping(path = "/nasabah/getAll", method = RequestMethod.GET)
@@ -102,7 +102,7 @@ public class BankController {
             result.add(model);
         }
 
-        return new Wrapper(200, "Success", result);
+        return new Wrapper(200, "Sukses", result);
     }
 
     @RequestMapping(path = "/transaction", method = RequestMethod.GET)
@@ -122,7 +122,7 @@ public class BankController {
             result.add(model);
         }
 
-        return new Wrapper(200, "Success", result);
+        return new Wrapper(200, "Sukses", result);
 
     }
 
@@ -153,21 +153,21 @@ public class BankController {
             }
         }
 
-        return new Wrapper(200, "Success", result);
+        return new Wrapper(200, "Sukses", result);
     }
 
     @RequestMapping(path = "/withdraw/{id}", method = RequestMethod.GET)
     public Wrapper getListDetailWithdraw(@PathVariable(value = "id") int id) {
         WithdrawEntity withdrawals = withdrawService.getWithdrawById(id);
-        if (withdrawals == null) return new Wrapper(200, "Data Not Found", null);
+        if (withdrawals == null) return new Wrapper(404, "Data tidak ditemukan", null);
         UserEntity user = userService.getUserById(withdrawals.getIdUser());
-        if (user == null) return new Wrapper(200, "Data Not Found", null);
+        if (user == null) return new Wrapper(404, "Data tidak ditemukan", null);
         ModelMap model = new ModelMap();
         model.addAttribute("nama", user.getNama());
         model.addAttribute("saldo", withdrawals.getNominal());
         model.addAttribute("waktu", withdrawals.getWaktu());
         model.addAttribute("status", withdrawals.getStatus());
-        return new Wrapper(200, "Success", model);
+        return new Wrapper(200, "Sukses", model);
     }
 
     @RequestMapping(path = "/withdraw/updateStatus/accept", method = RequestMethod.PUT)
@@ -179,7 +179,7 @@ public class BankController {
             return new Wrapper(400, "Permintaan sudah direspon", null);
         }
         WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, 1);
-        return new Wrapper(200, "Success", withdraw);
+        return new Wrapper(200, "Sukses", withdraw);
     }
 
     @RequestMapping(path = "/withdraw/updateStatus/reject", method = RequestMethod.PUT)
@@ -191,7 +191,7 @@ public class BankController {
             return new Wrapper(400, "Permintaan sudah direspon", null);
         }
         WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, -1);
-        return new Wrapper(200, "Success", withdraw);
+        return new Wrapper(200, "Sukses", withdraw);
     }
 
     @RequestMapping(path = "/withdraw/updateStatus/complete", method = RequestMethod.PUT)
@@ -208,7 +208,7 @@ public class BankController {
         UserEntity theUser = userService.getUserById(withdraw.getIdUser());
         theUser.setSaldo(theUser.getSaldo() - withdraw.getNominal());
         userService.save(theUser);
-        return new Wrapper(200, "Success", withdraw);
+        return new Wrapper(200, "Sukses", withdraw);
     }
 
     @RequestMapping(path = "/transaction/addNew", method = RequestMethod.POST)
@@ -222,7 +222,7 @@ public class BankController {
 
         TransaksiEntity transaksi = new TransaksiEntity();
         UserEntity user = userService.getUserByPhoneNumber(phoneNumber);
-        if(user == null) return new Wrapper(200,"Nasabah tidak ditemukan", null);
+        if(user == null) return new Wrapper(404, "Nasabah tidak ditemukan", null);
         int iduser = user.getId();
         transaksi.setIdUser(iduser);
         transaksi.setIdBank(idBank);
@@ -238,11 +238,11 @@ public class BankController {
         LanggananEntity langganan = langgananService.isSubscribedToThisBank(idBank, iduser);
 
         if(langganan == null) {
-            return new Wrapper(200, "Nasabah belum berlangganan", null);
+            return new Wrapper(403, "Akses ditolak: belum berlangganan", null);
         }
 
         if(hasil == null) {
-            return new Wrapper(200, "Gagal menyimpan data", null);
+            return new Wrapper(400, "Gagal menyimpan data", null);
         }
 
         //UserEntity userTemp = userService.getUserById(iduser);
@@ -259,7 +259,7 @@ public class BankController {
 //
 //        postToGcm(params);
 
-        return new Wrapper(201, "Transaksi berhasil dibuat", "");
+        return new Wrapper(201, "Transaksi berhasil dibuat", null);
 
     }
 
@@ -267,7 +267,7 @@ public class BankController {
     public Wrapper getListNotification(@RequestHeader(value = "idBank") int idBank) {
 
         List<WithdrawEntity> withdraw = withdrawService.getWithdrawByIdBank(idBank);
-        if (withdraw == null) return new Wrapper(200, "Data Not Found", null);
+        if (withdraw == null) return new Wrapper(404, "Data tidak ditemukan", null);
 
         List<ModelMap> result = new LinkedList<ModelMap>();
         for (WithdrawEntity w : withdraw) {
@@ -283,6 +283,6 @@ public class BankController {
             }
         }
 
-        return new Wrapper(200, "Success", result);
+        return new Wrapper(200, "Sukses", result);
     }
 }
