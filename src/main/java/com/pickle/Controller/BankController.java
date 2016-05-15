@@ -1,7 +1,9 @@
 package com.pickle.Controller;
 
 import com.pickle.Domain.*;
+import com.pickle.Domain.GcmBody;
 import com.pickle.Service.*;
+import com.pickle.Util.GCM.*;
 import com.pickle.Util.PickleUtil;
 import org.apache.tomcat.jni.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+
+import static com.pickle.Controller.GcmPost.postToGcm;
 
 /**
  * API Controller - Bank App.
@@ -63,7 +65,7 @@ public class BankController {
         if(bank == null) return new Wrapper(200,"Gagal",null);
         bank.setGcmId(key);
         bankService.saveGcmId(id, bank);
-        return new Wrapper(200,"Success", 200);
+        return new Wrapper(200,"Success",  200);
     }
 
     @RequestMapping(path = "/nasabah/{id}", method = RequestMethod.GET)
@@ -242,7 +244,22 @@ public class BankController {
         if(hasil == null) {
             return new Wrapper(200, "Gagal menyimpan data", null);
         }
-        return new Wrapper(201, "Transaksi berhasil dibuat", transaksi);
+
+        //UserEntity userTemp = userService.getUserById(iduser);
+        //String to = userTemp.getGcmId();
+
+        // to active gcm, not complete
+//        BanksampahEntity bank = bankService.findById(idBank);
+//        String to = bank.getGcmId();
+//
+//        Map<String,String> params = new HashMap<String,String>();
+//        params.put("id", ""+ 1);
+//        params.put("title", "Pickle Bank");
+//        params.put("text", "Ada Permintaan Withdraw Baru");
+//
+//        postToGcm(params);
+
+        return new Wrapper(201, "Transaksi berhasil dibuat", "");
 
     }
 

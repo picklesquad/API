@@ -27,6 +27,7 @@ public class UserEntity {
     private String fbToken;
     private int isComplete;
     private long memberSince;
+    private String gcmId;
 
     /**
      * Returns the id of this user.
@@ -246,6 +247,16 @@ public class UserEntity {
      * @param memberSince the time millis representing registration date of this user
      */
     public void setMemberSince(long memberSince) { this.memberSince = memberSince; }
+
+    @Basic
+    @Column(name = "gcmid")
+    public String getGcmId() {
+        return gcmId;
+    }
+
+    public void setGcmId(String gcmId) {
+        this.gcmId = gcmId;
+    }
 
     @Override
     public boolean equals(Object o) {

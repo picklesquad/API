@@ -15,7 +15,7 @@ import java.net.URISyntaxException;
  */
 public class GcmRequestEntity<T> extends RequestEntity<GcmBody<T>>{
 
-    private static final String GOOGLE_API_SERVER_KEY = " AIzaSyDpJbGVhVRaoDxH5Vm979xqLTS36e-cCUE";
+    private static final String GOOGLE_API_SERVER_KEY = " \tAIzaSyDWSGYqGuphLy-OI5hc9rmIOO7NYz7P2H0";
     private static final String AUTH_KEY = "Authorization";
     private static final String POST_URI = "https://gcm-http.googleapis.com/gcm/send";
 
