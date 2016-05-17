@@ -245,21 +245,21 @@ public class BankController {
             return new Wrapper(400, "Gagal menyimpan data", null);
         }
 
-        //UserEntity userTemp = userService.getUserById(iduser);
-        //String to = userTemp.getGcmId();
+        BanksampahEntity bank = bankService.findById(idBank);
+        String to = bank.getGcmId();
 
-        // to active gcm, not complete
-//        BanksampahEntity bank = bankService.findById(idBank);
-//        String to = bank.getGcmId();
-//
-//        Map<String,String> params = new HashMap<String,String>();
-//        params.put("id", ""+ 1);
-//        params.put("title", "Pickle Bank");
-//        params.put("text", "Ada Permintaan Withdraw Baru");
-//
-//        postToGcm(params);
+//        UserEntity userTemp = userService.getUserById(iduser);
+//        String to = userTemp.getGcmId();
+        Map<String,String> params = new HashMap<String,String>();
+        params.put("id", ""+ 1);
+        params.put("title", "Pickle Bank");
+        params.put("text", "Ada Permintaan Withdraw Baru");
 
-        return new Wrapper(201, "Transaksi berhasil dibuat", null);
+        String responseGcm = postToGcm(new GcmBody(to, params));
+
+        if(responseGcm.equals(null)) return new Wrapper(200,"gagal gcm", null);
+
+        return new Wrapper(201, "Transaksi berhasil dibuat", responseGcm);
 
     }
 
