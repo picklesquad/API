@@ -248,12 +248,11 @@ public class BankController {
 //        BanksampahEntity bank = bankService.findById(idBank);
 //        String to = bank.getGcmId();
 
-        UserEntity userTemp = userService.getUserById(iduser);
-        String to = userTemp.getGcmId();
+        String to = user.getGcmId();
         Map<String,String> params = new HashMap<String,String>();
-        params.put("id", ""+ 1);
-        params.put("title", "Pickle Bank");
-        params.put("text", "Ada Permintaan Withdraw Baru");
+        params.put("id", ""+ hasil.getId());
+        params.put("title", "Pickle");
+        params.put("text", "Konfirmasi transaksi baru");
 
         String responseGcm = postToGcm(new GcmBody(to, params));
 
