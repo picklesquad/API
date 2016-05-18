@@ -10,8 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Map;
+
+import static com.pickle.Controller.GcmPost.postToGcm;
 
 /**
  * API Controller - User App.
@@ -56,7 +60,7 @@ public class UserController{
         UserEntity userResult = userService.validation(email);
 
         if (userResult == null) {
-            return new Wrapper(404, "Email tidak ditemukan", null);
+            return new Wrapper(404, "Email tidak ditemukan", false);
         }
         // end of checking
 
@@ -103,7 +107,7 @@ public class UserController{
         model.addAttribute("level", PickleUtil.getLevelName(userLevel));
         model.addAttribute("stars", PickleUtil.generateStars(userResult.getExp(), userLevel));
 
-        model.addAttribute("exp", userResult.getExp());
+        model.addAttribute("exp", PickleUtil.getExpFraction(userResult.getExp()));
         model.addAttribute("memberSince", userResult.getMemberSince());
         model.addAttribute("saldo", userResult.getSaldo());
         PickleUtil.countSampahUser(userResult.getId(), model, transaksiService);
@@ -182,7 +186,7 @@ public class UserController{
         model.addAttribute("photo", newUser.getPhoto());
         model.addAttribute("level", "newbie");
         model.addAttribute("star", 1);
-        model.addAttribute("exp", 0);
+        model.addAttribute("exp", PickleUtil.getExpFraction(0));
         model.addAttribute("memberSince", newUser.getMemberSince());
         model.addAttribute("sampahPlastik", 0);
         model.addAttribute("sampahKertas", 0);
@@ -829,6 +833,15 @@ public class UserController{
         model.addAttribute("status", PickleUtil.generateStatus(newWithdraw.getStatus()));
         model.addAttribute("waktu", newWithdraw.getWaktu());
 
+        Map<String,String> params = new HashMap<String,String>();
+        params.put("id", newWithdraw.getId() + "");
+        params.put("title", "Pickle Bank");
+        params.put("text", "Ada permintaan withdraw baru");
+
+        String to = bankSampah.getGcmId();
+//        String to = userById.getGcmId();
+        String responseGcm = postToGcm(new GcmBody(to, params));
+
         return new Wrapper(201, "Permintaan berhasil ditambahkan", model);
     }
 
@@ -892,16 +905,16 @@ public class UserController{
         // firstTransactionTime = -1 means no transaction has been made, therefore can'w withdraw
         if (firstTransactionTime == -1) {
             model.addAttribute("jumlahHari", -1);
-            model.addAttribute("boolean:", false);
+            model.addAttribute("boolean", false);
             return new Wrapper(200, "Sukses", model);
         }
         model.addAttribute("jumlahHari", numberOfDays);
 
         if (numberOfDays >= 90) {
-            model.addAttribute("boolean:", true);
+            model.addAttribute("boolean", true);
             return new Wrapper(200, "Sukses", model);
         } else {
-            model.addAttribute("boolean:", false);
+            model.addAttribute("boolean", false);
             return new Wrapper(200, "Sukses", model);
         }
     }

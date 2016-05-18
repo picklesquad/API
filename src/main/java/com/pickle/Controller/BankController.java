@@ -245,11 +245,11 @@ public class BankController {
             return new Wrapper(400, "Gagal menyimpan data", null);
         }
 
-        BanksampahEntity bank = bankService.findById(idBank);
-        String to = bank.getGcmId();
+//        BanksampahEntity bank = bankService.findById(idBank);
+//        String to = bank.getGcmId();
 
-//        UserEntity userTemp = userService.getUserById(iduser);
-//        String to = userTemp.getGcmId();
+        UserEntity userTemp = userService.getUserById(iduser);
+        String to = userTemp.getGcmId();
         Map<String,String> params = new HashMap<String,String>();
         params.put("id", ""+ 1);
         params.put("title", "Pickle Bank");

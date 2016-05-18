@@ -162,4 +162,12 @@ public class PickleUtil {
         String hsl = "Rp. " + df.format(harga);
         return hsl;
     }
+
+    public static String getExpFraction(int exp) {
+        int i = 0;
+        while (i < LEVEL_THRESHOLD.length && LEVEL_THRESHOLD[i] < exp) {
+            i++;
+        }
+        return exp + "/" + LEVEL_THRESHOLD[i];
+    }
 }
