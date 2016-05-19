@@ -22,11 +22,11 @@ public class TransaksiService {
     }
 
     public List<TransaksiEntity> getTransaksiByIdUser(int id) {
-        return transaksiRepository.findByIdUser(id);
+        return transaksiRepository.findByIdUserOrderByStatusAscWaktuDesc(id);
     }
 
     public List<TransaksiEntity> getTransaksiByIdBank(int idBank) {
-        return transaksiRepository.findByIdBank(idBank);
+        return transaksiRepository.findByIdBankOrderByStatusAscWaktuDesc(idBank);
     }
 
     public List<TransaksiEntity> getTransaksiByIdbankAndIduser(int idBank, int idUser) {

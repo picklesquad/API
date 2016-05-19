@@ -388,9 +388,9 @@ public class UserController{
         LanggananEntity langgananEntity = langgananService.isSubscribedToThisBank(idBank, idUser);
 
         if (langgananEntity == null) {
-            model.addAttribute("isSubsribed", false);
+            model.addAttribute("isSubscribed", false);
         } else {
-            model.addAttribute("isSubsribed", true);
+            model.addAttribute("isSubscribed", true);
         }
 
         return new Wrapper(200, "Sukses", model);
@@ -1117,6 +1117,7 @@ public class UserController{
         // update user's balance
         if (status == 1) {
             userById.setSaldo(userById.getSaldo() + transaction.getHarga());
+            userById.setExp(userById.getExp() + transaction.getHarga());
             userService.save(userById);
         }
         return new Wrapper(200, "Sukses", transaction);

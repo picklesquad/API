@@ -190,7 +190,7 @@ public class BankController {
         if (data.getStatus() != 0) {
             return new Wrapper(400, "Permintaan sudah direspon", null);
         }
-        WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, -1);
+        WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, 3);
         return new Wrapper(200, "Sukses", withdraw);
     }
 

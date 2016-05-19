@@ -26,11 +26,11 @@ public class WithdrawService {
     }
 
     public List<WithdrawEntity> getWithdrawByIdUser(int id) {
-        return withdrawRepository.findByIdUser(id);
+        return withdrawRepository.findByIdUserOrderByStatusAscWaktuDesc(id);
     }
 
     public List<WithdrawEntity> getWithdrawByIdBank(int idBank){
-        return withdrawRepository.findByIdBank(idBank);
+        return withdrawRepository.findByIdBankOrderByStatusAscWaktuDesc(idBank);
     }
 
     public WithdrawEntity save(WithdrawEntity newWithdraw) {
