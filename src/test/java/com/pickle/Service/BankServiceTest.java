@@ -1,6 +1,7 @@
 package com.pickle.Service;
 
 import com.pickle.Domain.BanksampahEntity;
+import org.hibernate.mapping.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +42,7 @@ public class BankServiceTest {
 
     @Test
     public void searchByLocation() throws Exception {
-
+//        when(bankService.searchByLocation("")).thenReturn(List<banksampahEntity>);
     }
 
     @Test
