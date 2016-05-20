@@ -17,7 +17,7 @@ import java.util.List;
 public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Integer> {
 
     TransaksiEntity findById(int id);
-    List<TransaksiEntity> findByIdUserOrderByStatusAscWaktuDesc(int idUser);
+    List<TransaksiEntity> findByIdUser(int idUser);
     List<TransaksiEntity> findByIdBankOrderByStatusAscWaktuDesc(int idBank);
     List<TransaksiEntity> findByIdBankAndIdUser(int idBank, int idUser);
 

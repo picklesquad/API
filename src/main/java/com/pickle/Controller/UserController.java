@@ -10,10 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 import static com.pickle.Controller.GcmPost.postToGcm;
 
@@ -665,6 +662,28 @@ public class UserController{
         // end of checking
 
         List<TransaksiEntity> transactions = transaksiService.getTransaksiByIdUser(idUser);
+        Collections.sort(transactions,new Comparator<TransaksiEntity>(){
+            @Override
+            public int compare(TransaksiEntity t1, TransaksiEntity t2) {
+                //TODO return 1 if rhs should be before lhs
+                //     return -1 if lhs should be before rhs
+                //     return 0 otherwise
+                if (t1.getStatus() == 0) {
+                    if (t2.getStatus() == 0) {
+                        return (int) (t2.getWaktu() - t1.getWaktu());
+                    } else {
+                        return -1;
+                    }
+                } else {
+                    if (t2.getStatus() == 0) {
+                        return 1;
+                    } else {
+                        return (int) (t2.getWaktu() - t1.getWaktu());
+                    }
+                }
+            }
+        });
+
         List<ModelMap> models = new LinkedList<>();
 
         for (TransaksiEntity t : transactions) {
