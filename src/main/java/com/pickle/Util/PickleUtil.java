@@ -46,9 +46,9 @@ public class PickleUtil {
      * @return the corresponding level
      */
     public static int generateLevel(int exp) {
-        for (int i = 1; i < LEVEL_NAMES.length - 1; i++) {
-            if (exp < LEVEL_THRESHOLD[i]) {
-                return i - 1;
+        for (int i = 0; i < LEVEL_NAMES.length - 1; i++) {
+            if (exp <= LEVEL_THRESHOLD[i + 1]) {
+                return i;
             }
         }
         return LEVEL_NAMES.length;
