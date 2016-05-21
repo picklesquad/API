@@ -51,7 +51,7 @@ public class UserController{
      * @param email the user's email
      * @return response body containing true if the user has completed his/her data, otherwise false
      */
-    @RequestMapping(path = "/login/isComplete", method = RequestMethod.POST)
+    @RequestMapping(path = "/login", method = RequestMethod.POST)
     public Wrapper isComplete(@RequestParam("email") String email) {
         // check whether the email given exists or not
         UserEntity userResult = userService.validation(email);
@@ -81,8 +81,8 @@ public class UserController{
      * @param email the user's email
      * @return response body containing his/her profile
      */
-    @RequestMapping(path = "/login", method = RequestMethod.POST)
-    public Wrapper login(@RequestParam("email")String email){
+    @RequestMapping(path = "/getProfile", method = RequestMethod.POST)
+    public Wrapper getProfile(@RequestParam("email")String email){
         // check whether the email given exists or not
         UserEntity userResult = userService.validation(email);
 
@@ -112,6 +112,36 @@ public class UserController{
         return new Wrapper(200, "Sukses", model);
     }
 
+    @RequestMapping(path = "/editProfile", method = RequestMethod.POST)
+    public Wrapper editProfile(@RequestHeader("token")String token,
+                               @RequestHeader("idUser")int idUser,
+                               @RequestParam("nama")String nama,
+                               @RequestParam("phoneNumber")String phoneNumber,
+                               @RequestParam("address")String address) {
+
+        // check whether logged in user is authorized
+        UserEntity userByToken = userService.getUserByApiToken(token);
+        UserEntity userById = userService.getUserById(idUser);
+
+        if (userByToken == null || userById == null) {
+            return new Wrapper(404, "Nasabah tidak ditemukan", null);
+        }
+
+        if (!userByToken.equals(userById)) {
+            return new Wrapper(403, "Token tidak valid", null);
+        }
+        // end of checking
+
+        userById.setNama(nama);
+        userById.setPhoneNumber(phoneNumber);
+        userById.setAlamat(address);
+
+        // insert to DB
+        userById = userService.save(userById);
+
+        return new Wrapper(201, "Sukses", null);
+    }
+
     /**
      * Register and login for new user who just registered.
      *
@@ -131,7 +161,7 @@ public class UserController{
      * @param fbToken the user's facebook token
      * @return response body containing his/her profile
      */
-    @RequestMapping(path = "/login/addUser", method = RequestMethod.POST)
+    @RequestMapping(path = "/addUser", method = RequestMethod.POST)
     public Wrapper register(@RequestParam("nama")String nama,
                             @RequestParam("email")String email,
                             @RequestParam("phoneNumber")String phoneNumber,
@@ -208,8 +238,8 @@ public class UserController{
      * @return response body containing the data only if the user is authorized
      */
     @RequestMapping(path = "/balances", method = RequestMethod.GET)
-    public Wrapper getAllBalance(@RequestHeader(value="token")String token,
-                                 @RequestHeader(value="idUser")int idUser) {
+    public Wrapper getAllBalance(@RequestHeader("token")String token,
+                                 @RequestHeader("idUser")int idUser) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);
@@ -276,8 +306,8 @@ public class UserController{
      */
     @RequestMapping(path = "/bank/{id}/balance", method = RequestMethod.GET)
     public Wrapper getBalanceInBank(@PathVariable("id") int idBank,
-                                    @RequestHeader(value="token")String token,
-                                    @RequestHeader(value="idUser")int idUser) {
+                                    @RequestHeader("token")String token,
+                                    @RequestHeader("idUser")int idUser) {
 
         // check whether logged in user is authorized
         UserEntity userByToken = userService.getUserByApiToken(token);

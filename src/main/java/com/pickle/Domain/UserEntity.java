@@ -21,6 +21,7 @@ public class UserEntity {
     private String phoneNumber;
     private String photo;
     private String alamat;
+    private int gender;
     private int exp;
     private int saldo;
     private String apiToken;
@@ -122,9 +123,23 @@ public class UserEntity {
     }
 
     /**
-     * Returns the address of this user.
-     * @return the {@code alamat} property
+     * Returns the gender of this user.
+     * @return the {@code gender} property, 0 is male, 1 is female
      */
+    @Basic
+    @Column(name = "gender")
+    public int getGender() {
+        return gender;
+    }
+
+    /**
+     * Sets the gender of this user with the specified {@code address}.
+     * @param gender the {@code alamat} for this user, 0 is male, 1 is female
+     */
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
     @Basic
     @Column(name = "alamat")
     public String getAlamat() {
