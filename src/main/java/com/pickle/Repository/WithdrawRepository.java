@@ -15,7 +15,7 @@ import java.util.List;
 public interface WithdrawRepository extends CrudRepository<WithdrawEntity, Integer> {
 
     WithdrawEntity findById(int id);
-    List<WithdrawEntity> findByIdUser(int idUser);
-    List<WithdrawEntity> findByIdBank(int idBank);
+    List<WithdrawEntity> findByIdUserOrderByWaktuDesc(int idUser);
+    List<WithdrawEntity> findByIdBankOrderByWaktuDesc(int idBank);
     List<WithdrawEntity> findByIdUserAndIdBank(int idUser, int idBank);
 }
