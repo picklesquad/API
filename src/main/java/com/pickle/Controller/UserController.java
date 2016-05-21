@@ -167,7 +167,7 @@ public class UserController{
                             @RequestParam("phoneNumber")String phoneNumber,
                             @RequestParam("dateOfBirth")String dob,
                             @RequestParam("facebookPhoto")String facebookPhoto,
-                            @RequestParam("gender")String gender,
+                            @RequestParam("gender")int gender,
                             @RequestParam("alamat")String alamat,
                             @RequestParam("fbToken")String fbToken) {
 
@@ -196,6 +196,7 @@ public class UserController{
             newUser.setPhoto("http://i.imgbox.com/HMTE02Qv.jpg");
         }
         newUser.setAlamat(alamat);
+        newUser.setGender(gender);
         newUser.setExp(0);
         newUser.setSaldo(0);
         newUser.setApiToken(PickleUtil.generateApiToken(phoneNumber));
