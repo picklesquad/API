@@ -132,6 +132,11 @@ public class UserController{
         if (!userByToken.equals(userById)) {
             return new Wrapper(403, "Token tidak valid", null);
         }
+
+        UserEntity userByPhoneNumber = userService.getUserByPhoneNumber(phoneNumber);
+        if (userByPhoneNumber != null) {
+            return new Wrapper(403, "Nomor HP tidak valid", null);
+        }
         // end of checking
 
         userById.setNama(nama);
