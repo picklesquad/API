@@ -99,6 +99,8 @@ public class UserController{
         model.addAttribute("apiToken", userResult.getApiToken());
         model.addAttribute("nama", userResult.getNama());
         model.addAttribute("photo", userResult.getPhoto());
+        model.addAttribute("alamat", userResult.getAlamat());
+        model.addAttribute("phoneNumber", userResult.getPhoneNumber());
 
         int userLevel = PickleUtil.generateLevel(userResult.getExp());
         model.addAttribute("level", PickleUtil.getLevelName(userLevel));
