@@ -388,6 +388,7 @@ public class UserController{
             model.addAttribute("isSubscribed", false);
         } else {
             model.addAttribute("isSubscribed", true);
+            model.addAttribute("langgananSejak", langgananEntity.getLanggananSejak());
         }
 
         return new Wrapper(200, "Sukses", model);
