@@ -90,10 +90,12 @@ public class BankController {
         }
         List<ModelMap> result = new LinkedList<ModelMap>();
 
+        System.out.println("size  " + langganan.size());
         for (LanggananEntity n : langganan) {
             ModelMap model = new ModelMap();
-
+            System.out.println(n.getIduser());
             UserEntity user = userService.getUserById(n.getIduser());
+
             model.addAttribute("id", user.getId());
             model.addAttribute("nama", user.getNama());
             model.addAttribute("photo", user.getPhoto());
@@ -179,6 +181,19 @@ public class BankController {
             return new Wrapper(400, "Permintaan sudah direspon", null);
         }
         WithdrawEntity withdraw = withdrawService.saveUpdateStatus(id, data, 1);
+
+        UserEntity user = userService.getUserById(withdraw.getIdUser());
+        String to = user.getGcmId();
+        Map<String,String> params = new HashMap<String,String>();
+        params.put("type", "2");
+        params.put("id", ""+ withdraw.getId());
+        params.put("title", "Pickle");
+        params.put("text", "Permintaan withdraw Anda disetujui");
+
+        String responseGcm = postToGcm(new GcmBody(to, params));
+
+        if(responseGcm.equals(null)) return new Wrapper(200,"gagal gcm", null);
+
         return new Wrapper(200, "Sukses", withdraw);
     }
 
@@ -250,6 +265,7 @@ public class BankController {
 
         String to = user.getGcmId();
         Map<String,String> params = new HashMap<String,String>();
+        params.put("type", "1");
         params.put("id", ""+ hasil.getId());
         params.put("title", "Pickle");
         params.put("text", "Konfirmasi transaksi baru");
