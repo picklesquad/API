@@ -134,7 +134,7 @@ public class UserController{
         }
 
         UserEntity userByPhoneNumber = userService.getUserByPhoneNumber(phoneNumber);
-        if (userByPhoneNumber != null) {
+        if (userByPhoneNumber != null && !userById.equals(userByPhoneNumber)) {
             return new Wrapper(403, "Nomor HP tidak valid", null);
         }
         // end of checking
