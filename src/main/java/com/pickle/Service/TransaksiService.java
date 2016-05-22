@@ -26,7 +26,7 @@ public class TransaksiService {
     }
 
     public List<TransaksiEntity> getTransaksiByIdBank(int idBank) {
-        return transaksiRepository.findByIdBankOrderByWaktuDesc(idBank);
+        return transaksiRepository.findByIdBankOrderByStatusAscWaktuDesc(idBank);
     }
 
     public List<TransaksiEntity> getTransaksiByIdbankAndIduser(int idBank, int idUser) {
