@@ -59,6 +59,13 @@ public class BankController {
         }
     }
 
+    @RequestMapping(path = "/profile", method = RequestMethod.GET)
+    public Wrapper profile(@RequestHeader("id") int id){
+        BanksampahEntity bank = bankService.findById(id);
+        if(bank == null) return new Wrapper(200, "Gagal", null);
+        return new Wrapper(200, "Sukses", bank);
+    }
+
     @RequestMapping(path = "/gcmRegister", method = RequestMethod.PUT)
     public Wrapper updateRegisterIdGcm(@RequestHeader("id") int id, @RequestParam("key")String key){
         BanksampahEntity bank = bankService.findById(id);
