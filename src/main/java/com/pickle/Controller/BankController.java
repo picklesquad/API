@@ -132,6 +132,7 @@ public class BankController {
             model.addAttribute("nama", user.getNama());
             model.addAttribute("harga", t.getHarga());
             model.addAttribute("waktu", t.getWaktu());
+            model.addAttribute("status", t.getStatus());
             result.add(model);
         }
 
