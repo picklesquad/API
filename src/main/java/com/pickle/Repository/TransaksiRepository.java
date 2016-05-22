@@ -19,6 +19,7 @@ public interface TransaksiRepository extends CrudRepository<TransaksiEntity, Int
     TransaksiEntity findById(int id);
     List<TransaksiEntity> findByIdUser(int idUser);
     List<TransaksiEntity> findByIdBankOrderByStatusAscWaktuDesc(int idBank);
+    List<TransaksiEntity> findByIdBankOrderByWaktuDesc(int idBank);
     List<TransaksiEntity> findByIdBankAndIdUser(int idBank, int idUser);
 
     @Query(value = "SELECT sum(sampahplastik) from transaksi where idbank = :idbank and status = 1",
