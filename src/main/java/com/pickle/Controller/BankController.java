@@ -286,7 +286,7 @@ public class BankController {
 
         List<ModelMap> result = new LinkedList<ModelMap>();
         for (WithdrawEntity w : withdraw) {
-            if (w.getStatus() != 2 && w.getStatus() != -1) {
+            if (w.getStatus() != 2 && w.getStatus() != 3) {
                 ModelMap model = new ModelMap();
                 model.addAttribute("id", w.getId());
                 UserEntity user = userService.getUserById(w.getIdUser());
