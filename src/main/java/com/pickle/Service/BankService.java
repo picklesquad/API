@@ -26,6 +26,10 @@ public class BankService {
         return bankRepository.findById(id);
     }
 
+    public BanksampahEntity findByIdAndToken(int id, String token) {
+        return bankRepository.findByIdAndApiToken(id,token);
+    }
+
     public List<BanksampahEntity> searchByLocation(String query) {
         return bankRepository.findByLocationNameContainingIgnoreCaseOrNamaContainingIgnoreCase(query, query);
     }

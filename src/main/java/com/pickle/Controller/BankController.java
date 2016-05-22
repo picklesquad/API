@@ -45,10 +45,13 @@ public class BankController {
     public Wrapper login(@RequestParam("phoneNumber") String phoneNumber, @RequestParam("password") String password) {
         BanksampahEntity bankResult = bankService.validation(phoneNumber, password);
         if (bankResult != null) {
+            bankResult.setApiToken(PickleUtil.generateApiToken(phoneNumber));
+            BanksampahEntity bank = bankService.save(bankResult);
             ModelMap model = new ModelMap();
             Double rating = transaksiService.getTotalRating(bankResult.getId());
             int nasabah = langgananService.countUserSubscribe(bankResult.getId());
             model.addAttribute("id", bankResult.getId());
+            model.addAttribute("apiToken", bank.getApiToken());
             model.addAttribute("nama", bankResult.getNama());
             model.addAttribute("rating", rating);
             model.addAttribute("totalNasabah", nasabah);
@@ -60,8 +63,9 @@ public class BankController {
     }
 
     @RequestMapping(path = "/profile", method = RequestMethod.GET)
-    public Wrapper profile(@RequestHeader("id") int id){
-        BanksampahEntity bank = bankService.findById(id);
+    public Wrapper profile(@RequestHeader("id") int id, @RequestHeader("apiToken")String apiToken){
+        BanksampahEntity bank = bankService.findByIdAndToken(id,apiToken);
+        if(bank == null) return new Wrapper(400, "You don't have Access", null);
         ModelMap model = new ModelMap();
         int nasabah = langgananService.countUserSubscribe(bank.getId());
         model.addAttribute("totalNasabah", nasabah);
@@ -71,8 +75,9 @@ public class BankController {
     }
 
     @RequestMapping(path = "/gcmRegister", method = RequestMethod.PUT)
-    public Wrapper updateRegisterIdGcm(@RequestHeader("id") int id, @RequestParam("key")String key){
-        BanksampahEntity bank = bankService.findById(id);
+    public Wrapper updateRegisterIdGcm(@RequestHeader("id") int id,@RequestHeader("apiToken")String apiToken,
+                                       @RequestParam("key")String key){
+        BanksampahEntity bank = bankService.findByIdAndToken(id,apiToken);
         if(bank == null) return new Wrapper(200, "Gagal", null);
         bank.setGcmId(key);
         bankService.save(bank);
@@ -94,7 +99,11 @@ public class BankController {
     }
 
     @RequestMapping(path = "/nasabah/getAll", method = RequestMethod.GET)
-    public Wrapper getListAllNasabah(@RequestHeader(value = "idBank") int idbank) {
+    public Wrapper getListAllNasabah(@RequestHeader("apiToken")String apiToken,
+                                     @RequestHeader(value = "idBank") int idbank) {
+        BanksampahEntity bank = bankService.findByIdAndToken(idbank, apiToken);
+        if(bank == null) return new Wrapper(400, "You don't have Access", null);
+
         List<LanggananEntity> langganan = langgananService.getLanggananByIdbank(idbank);
         if (langganan == null) {
             return new Wrapper(404, "Data tidak ditemukan", null);
@@ -119,7 +128,10 @@ public class BankController {
     }
 
     @RequestMapping(path = "/transaction", method = RequestMethod.GET)
-    public Wrapper getListAllTransaction(@RequestHeader(value = "idBank") int idBank) {
+    public Wrapper getListAllTransaction(@RequestHeader("apiToken")String apiToken,
+                                         @RequestHeader(value = "idBank") int idBank) {
+        BanksampahEntity bank = bankService.findByIdAndToken(idBank, apiToken);
+        if(bank == null) return new Wrapper(400, "You don't have Access", null);
         List<TransaksiEntity> transaction = transaksiService.getTransaksiByIdBank(idBank);
         if (transaction == null) {
             return new Wrapper(404, "Data tidak ditemukan", null);
@@ -149,7 +161,10 @@ public class BankController {
 //    }
 
     @RequestMapping(path = "/withdraw", method = RequestMethod.GET)
-    public Wrapper getListAllWithdraw(@RequestHeader(value = "idBank") int idBank) {
+    public Wrapper getListAllWithdraw(@RequestHeader("apiToken")String apiToken,
+                                      @RequestHeader(value = "idBank") int idBank) {
+        BanksampahEntity bank = bankService.findByIdAndToken(idBank, apiToken);
+        if(bank == null) return new Wrapper(400, "You don't have Access", null);
         List<WithdrawEntity> withdrawals = withdrawService.getWithdrawByIdBank(idBank);
         if (withdrawals == null) {
             return new Wrapper(404, "Data tidak ditemukan", null);
@@ -245,8 +260,11 @@ public class BankController {
                                   @RequestParam("kertas") String kertas,
                                   @RequestParam("botol") String botol,
                                   @RequestParam("totalHarga") int totalHarga,
+                                  @RequestHeader("apiToken")String apiToken,
                                   @RequestHeader("idBank")int idBank) {
 
+        BanksampahEntity bank = bankService.findByIdAndToken(idBank, apiToken);
+        if(bank == null) return new Wrapper(400, "You don't have Access", null);
         TransaksiEntity transaksi = new TransaksiEntity();
         UserEntity user = userService.getUserByPhoneNumber(phoneNumber);
         if(user == null) return new Wrapper(404, "Nasabah tidak ditemukan", null);
@@ -291,11 +309,14 @@ public class BankController {
     }
 
     @RequestMapping(path = "/notification", method = RequestMethod.GET)
-    public Wrapper getListNotification(@RequestHeader(value = "idBank") int idBank) {
+    public Wrapper getListNotification(@RequestHeader("apiToken")String apiToken,
+                                       @RequestHeader(value = "idBank") int idBank) {
+
+        BanksampahEntity bank = bankService.findByIdAndToken(idBank, apiToken);
+        if(bank == null) return new Wrapper(400, "You don't have Access", null);
 
         List<WithdrawEntity> withdraw = withdrawService.getWithdrawByIdBank(idBank);
         if (withdraw == null) return new Wrapper(404, "Data tidak ditemukan", null);
-
         List<ModelMap> result = new LinkedList<ModelMap>();
         for (WithdrawEntity w : withdraw) {
             if (w.getStatus() != 2 && w.getStatus() != 3) {

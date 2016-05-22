@@ -16,5 +16,6 @@ public interface BankRepository extends CrudRepository<BanksampahEntity, Integer
 
     BanksampahEntity findByPhoneNumberAndPassword(String phoneNumber, String password);
     BanksampahEntity findById(int id);
+    BanksampahEntity findByIdAndApiToken(int id, String apiToken);
     List<BanksampahEntity> findByLocationNameContainingIgnoreCaseOrNamaContainingIgnoreCase(String locationName, String nama);
 }

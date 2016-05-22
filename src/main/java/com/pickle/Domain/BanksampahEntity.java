@@ -27,6 +27,7 @@ public class BanksampahEntity {
     private String locationDesc;
     private String password;
     private String gcmId;
+    private String apiToken;
 
     /**
      * Returns the id of this bank
@@ -220,6 +221,17 @@ public class BanksampahEntity {
 
     public void setGcmId(String gcmId) {
         this.gcmId = gcmId;
+    }
+
+    @Basic
+    @Column(name = "apitoken")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    public String getApiToken() {
+        return apiToken;
+    }
+
+    public void setApiToken(String apiToken) {
+        this.apiToken = apiToken;
     }
 
     @Override
