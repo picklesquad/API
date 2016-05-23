@@ -85,7 +85,7 @@ public class BankController {
     }
 
     @RequestMapping(path = "/nasabah/{id}", method = RequestMethod.GET)
-    public Wrapper getUserById(@PathVariable("id") int id) {
+    public Wrapper getUserById(@PathVariable("id") int id, @RequestHeader("idBank") int idBank) {
         UserEntity user = userService.getUserById(id);
         ModelMap model = new ModelMap();
         model.addAttribute("id", user.getId());
@@ -93,7 +93,24 @@ public class BankController {
         model.addAttribute("email", user.getEmail());
         model.addAttribute("phoneNumber", user.getPhoneNumber());
         model.addAttribute("alamat", user.getAlamat());
-        model.addAttribute("saldo", user.getSaldo());
+        List<TransaksiEntity> transactionsList = transaksiService.getTransaksiByIdbankAndIduser(idBank,
+                user.getId());
+        List<WithdrawEntity> withdrawalList = withdrawService.getWithdrawByIdUserAndIdBank(user.getId(), idBank);
+
+        long transactionsBalance = 0;
+        for (TransaksiEntity t : transactionsList) {
+            if (t.getStatus() == 1) {
+                transactionsBalance += t.getHarga();
+            }
+        }
+
+        long withdrawalsBalance = 0;
+        for (WithdrawEntity w : withdrawalList) {
+            if (w.getStatus() == 2) {
+                withdrawalsBalance += w.getNominal();
+            }
+        }
+        model.addAttribute("saldo", transactionsBalance - withdrawalsBalance);
         PickleUtil.countSampahUser(id, model, transaksiService);
         return new Wrapper(200, "Sukses", model);
     }
